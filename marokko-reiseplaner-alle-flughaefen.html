@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marokko Reiseplaner 2026/2027 – Alle Flughäfen & 3 Touren</title>
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --card: #ffffff;
+      --border: #e5dfd5;
+      --text: #1f2421;
+      --muted: #646a66;
+      --accent: #b85d3b;
+      --accent-soft: #fdf2ee;
+      --green: #1e7e4f;
+      --green-soft: #eaf7f0;
+      --blue: #1d5b8c;
+      --blue-soft: #eef5fb;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 120px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .control-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin: 14px 0 8px;
+      display: block;
+    }
+
+    .tour-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tour-btn {
+      text-align: left;
+      background: #faf8f5;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tour-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .tour-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .tour-btn-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      display: block;
+      margin-bottom: 2px;
+      color: var(--text);
+    }
+
+    .tour-btn-sub {
+      font-size: 0.83rem;
+      color: var(--muted);
+      display: block;
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .preset-btn {
+      border: 1px solid var(--border);
+      background: #faf8f5;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .preset-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .map-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .map-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .map-title {
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .gmaps-btn {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .map-frame {
+      width: 100%;
+      height: 310px;
+      border: 0;
+      border-radius: 10px;
+      background: #eae6df;
+    }
+
+    .route-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      align-items: center;
+      font-size: 0.84rem;
+    }
+
+    .pill {
+      background: #f2efe9;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    section.stage {
+      margin-bottom: 26px;
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .stage-title {
+      margin: 0;
+      font-size: 1.18rem;
+    }
+
+    .stage-meta {
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .option-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .option-card.selected {
+      border-color: var(--accent);
+      background: #fffdfb;
+    }
+
+    .option-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .selector-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid #c5bdb0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: #fff;
+      color: transparent;
+    }
+
+    .option-card.selected .selector-box {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .option-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .option-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .option-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .badge-save { background: var(--green-soft); color: var(--green); }
+    .badge-blue { background: var(--blue-soft); color: var(--blue); }
+    .badge-lux { background: #f5efe2; color: #8a641b; }
+
+    .option-price {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .option-desc {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .option-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 9px;
+      padding-left: 36px;
+      align-items: center;
+    }
+
+    .toggle-details {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.86rem;
+      cursor: pointer;
+    }
+
+    .ext-link {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-bottom: 1px solid #d2c9bc;
+    }
+
+    .details-panel {
+      display: none;
+      margin-top: 12px;
+      margin-left: 36px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .details-panel.open {
+      display: block;
+    }
+
+    .details-panel ul {
+      margin: 4px 0 0;
+      padding-left: 18px;
+    }
+
+    .sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1f2421;
+      color: #fff;
+      padding: 14px 16px;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.18);
+      z-index: 100;
+    }
+
+    .sticky-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .total-label {
+      font-size: 0.8rem;
+      color: #c8c4bc;
+    }
+
+    .total-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .copy-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🇲🇦 Marokko Reiseplaner (Silvester 2026 / 2027)</h1>
+    <p class="subtitle">3 Personen • Nonstop ab München (Agadir, Casablanca oder Marrakesch) • Mietwagen & 4–5★ Hotels</p>
+
+    <span class="control-label">1. Wunsch-Tour wählen</span>
+    <div class="tour-grid" id="tourSelector">
+      <button type="button" class="tour-btn active" data-tour="tour1">
+        <span class="tour-btn-title">🏜 Tour 1: Der Klassiker (11 Nächte)</span>
+        <span class="tour-btn-sub">Marrakesch • Hoher Atlas • Sahara Merzouga • Essaouira</span>
+      </button>
+      <button type="button" class="tour-btn" data-tour="tour2">
+        <span class="tour-btn-title">✨ Tour 2: Luxus & Genuss (11 Nächte)</span>
+        <span class="tour-btn-sub">Kurze Fahrzeiten: Marrakesch • Agafay-Wüste • Atlas • Essaouira</span>
+      </button>
+      <button type="button" class="tour-btn" data-tour="tour3">
+        <span class="tour-btn-title">🌴 Tour 3: Süd-Marokko Explorer (10 Nächte)</span>
+        <span class="tour-btn-sub">Marrakesch • Oase Skoura • Zagora-Wüste • Taroudant</span>
+      </button>
+    </div>
+
+    <span class="control-label">2. Budget-Voreinstellung</span>
+    <div class="presets" id="presetSelector">
+      <button type="button" class="preset-btn" data-preset="budget">💚 Spar-Mix (inkl. Agadir-Flugtrick)</button>
+      <button type="button" class="preset-btn active" data-preset="balanced">⚖ Preis-Leistungs-Mix</button>
+      <button type="button" class="preset-btn" data-preset="luxury">👑 Luxus-Auswahl</button>
+    </div>
+  </header>
+
+  <div class="map-card">
+    <div class="map-top">
+      <h2 class="map-title" id="mapTitle">🗺 Routenverlauf: Tour 1 – Der Klassiker</h2>
+      <a class="gmaps-btn" id="gmapsLink" href="https://www.google.com/maps/dir/Marrakech,+Marokko/A%C3%AFt+Benhaddou,+Marokko/Boumalne+Dades,+Marokko/Merzouga,+Marokko/Ouarzazate,+Marokko/Essaouira,+Marokko/Marrakech,+Marokko" target="_blank">📍 Route in Google Maps öffnen ↗</a>
+    </div>
+    <iframe id="mapFrame" class="map-frame" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-10.2%2C30.4%2C-3.5%2C32.2&layer=mapnik"></iframe>
+    <div class="route-pills" id="routePills"></div>
+  </div>
+
+  <!-- 1. FLÜGE (ALLE 3 NONSTOP-FLUGHÄFEN AB MÜNCHEN) -->
+  <section class="stage" data-group="flights">
+    <div class="stage-header">
+      <h2 class="stage-title">✈ 1. Nonstop-Flüge ab München (3 Zielflughäfen zur Wahl)</h2>
+      <span class="stage-meta">3 Personen inkl. Aufgabegepäck • Ohne Zwischenstopp</span>
+    </div>
+
+    <div class="option-card" data-price="1560" data-tier="budget" data-label="Condor Nonstop MUC ↔ Agadir (AGA) – Preis-Sieger">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Condor Nonstop: München ↔ Agadir (AGA) <span class="badge badge-save">Preis-Sieger • Spart ca. 900 €</span></span>
+            <span class="option-price">ca. 1.560 € gesamt</span>
+          </div>
+          <p class="option-desc">Direktflug (ca. 4 Std. 10 Min., Do & So, z. B. So 27.12. – Do 07.01. oder Do 31.12. – So 10.01., ca. 520 € p. P.). Start/Ziel der Rundreise dann ab Agadir.</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <button type="button" class="toggle-details">▾ Routen-Hinweis für Agadir ausklappen</button>
+        <a class="ext-link" href="https://www.google.com/travel/flights?q=Flights%20to%20AGA%20from%20MUC%20on%202026-12-27%20through%202027-01-07%20nonstop" target="_blank">🔗 Agadir-Flüge prüfen ↗</a>
+      </div>
+      <div class="details-panel">
+        <ul>
+          <li><strong>Perfekter Einstieg:</strong> Agadir liegt nur ca. 2,5 Std. südlich von Essaouira und ca. 3 Std. von Marrakesch – ideal, um die gewählte Rundreise einfach dort zu starten und zu beenden.</li>
+          <li><strong>Mietwagen:</strong> Übernahme & Rückgabe direkt am Flughafen Agadir (AGA).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="option-card selected" data-price="1680" data-tier="balanced" data-label="Royal Air Maroc Nonstop MUC ↔ Casablanca (CMN) – Mo 28.12. bis Fr 08.01.">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Royal Air Maroc Nonstop: München ↔ Casablanca (CMN) <span class="badge badge-blue">Exakt 28.12. – 08.01.</span></span>
+            <span class="option-price">ca. 1.680 € gesamt</span>
+          </div>
+          <p class="option-desc">Direktflug genau an deinen Wunschtagen (Mo 28.12. – Fr 08.01., Flugzeit ca. 3 Std. 35 Min., ca. 560 € p. P.). Per Autobahn in ca. 2,5 Std. in Marrakesch.</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <button type="button" class="toggle-details">▾ Routen-Hinweis für Casablanca ausklappen</button>
+        <a class="ext-link" href="https://www.google.com/travel/flights?q=Flights%20to%20CMN%20from%20MUC%20on%202026-12-28%20through%202027-01-08%20nonstop" target="_blank">🔗 Casablanca-Flüge prüfen ↗</a>
+      </div>
+      <div class="details-panel">
+        <ul>
+          <li><strong>Sehr entspannte Anreise:</strong> Durchgehende Autobahn (A3) direkt vom Flughafen Casablanca bis nach Marrakesch (ca. 220 km / 2,5 Std.).</li>
+          <li><strong>Vorteil:</strong> Ihr nutzt den Mietwagen direkt ab Flughafen CMN und spart gegenüber dem Marrakesch-Flug rund 1.200 € für 3 Personen.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="option-card" data-price="2850" data-tier="luxury" data-label="Discover Airlines Nonstop MUC ↔ Marrakesch (RAK) – Direkt am Startpunkt">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Discover Airlines Nonstop: München ↔ Marrakesch (RAK)</span>
+            <span class="option-price">ca. 2.850 € gesamt</span>
+          </div>
+          <p class="option-desc">Bequemster Direktflug ohne Transferfahrt (ca. 4 Std., u. a. Mo 28.12. – Fr 08.01. oder Di 29.12. – Sa 09.01., ca. 950 € p. P.).</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <a class="ext-link" href="https://www.google.com/travel/flights?q=Flights%20to%20RAK%20from%20MUC%20on%202026-12-28%20through%202027-01-08%20nonstop" target="_blank">🔗 Marrakesch-Flüge prüfen ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. MIETWAGEN -->
+  <section class="stage" data-group="car">
+    <div class="stage-header">
+      <h2 class="stage-title">🚙 2. Mietwagen (ab/bis gewähltem Ankunftsflughafen)</h2>
+      <span class="stage-meta">Inkl. Vollkasko ohne Selbstbeteiligung • Platz für 3 Personen + Gepäck</span>
+    </div>
+
+    <div class="option-card" data-price="440" data-tier="budget" data-label="Kombi / Hochdachkombi (z. B. Dacia Jogger) inkl. Vollkasko">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Kombi / Hochdachkombi (z. B. Dacia Jogger) <span class="badge badge-save">Sparhebel</span></span>
+            <span class="option-price">ca. 440 € gesamt</span>
+          </div>
+          <p class="option-desc">Großer Kofferraum für 3 Koffer, ideal für Autobahn (ab CMN/AGA) und alle asphaltierten Bergpässe.</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <a class="ext-link" href="https://www.sunnycars.de/" target="_blank">🔗 Sunny Cars prüfen ↗</a>
+      </div>
+    </div>
+
+    <div class="option-card selected" data-price="590" data-tier="balanced" data-label="Mittelklasse-SUV (z. B. Dacia Duster / Hyundai Tucson) inkl. Vollkasko">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Mittelklasse-SUV (z. B. Dacia Duster / Hyundai Tucson)</span>
+            <span class="option-price">ca. 590 € gesamt</span>
+          </div>
+          <p class="option-desc">Bequeme Federung und Bodenfreiheit für Atlasgebirge, Wüstenzufahrt und Küstenstraßen.</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <a class="ext-link" href="https://www.sunnycars.de/" target="_blank">🔗 Sunny Cars ↗</a>
+        <a class="ext-link" href="https://www.sixt.de/" target="_blank">🌐 SIXT Marokko ↗</a>
+      </div>
+    </div>
+
+    <div class="option-card" data-price="920" data-tier="luxury" data-label="Komfort-SUV Automatik (z. B. VW Tiguan / Toyota Prado)">
+      <div class="option-top">
+        <div class="selector-box">✓</div>
+        <div class="option-main">
+          <div class="option-title-row">
+            <span class="option-name">Komfort-SUV Automatik (z. B. VW Tiguan / Toyota Land Cruiser Prado)</span>
+            <span class="option-price">ca. 920 € gesamt</span>
+          </div>
+          <p class="option-desc">Maximaler Langstreckenkomfort für 3 Erwachsene inkl. Automatikgetriebe.</p>
+        </div>
+      </div>
+      <div class="option-actions">
+        <a class="ext-link" href="https://www.sixt.de/" target="_blank">🌐 SIXT Marokko ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DYNAMISCHE ETAPPEN DER GEWÄHLTEN TOUR -->
+  <div id="tourStagesContainer"></div>
+</div>
+
+<div class="sticky-bar">
+  <div class="sticky-inner">
+    <div>
+      <div class="total-label" id="totalSubtitle">Gesamtsumme (3 Personen • Flüge, Mietwagen & Unterkünfte)</div>
+      <div class="total-value" id="totalDisplay">0 €</div>
+    </div>
+    <button type="button" class="copy-btn" id="copyBtn">📋 Auswahl kopieren</button>
+  </div>
+</div>
+
+<script>
+  const TOURS = {
+    tour1: {
+      title: "Tour 1: Der Klassiker (11 Nächte)",
+      gmaps: "https://www.google.com/maps/dir/Marrakech,+Marokko/A%C3%AFt+Benhaddou,+Marokko/Boumalne+Dades,+Marokko/Merzouga,+Marokko/Ouarzazate,+Marokko/Essaouira,+Marokko/Marrakech,+Marokko",
+      bbox: "-10.2,30.4,-3.5,32.2",
+      stops: ["Start: Flughafen", "Marrakesch (3 N.)", "Aït-Ben-Haddou & Dadès (2 N.)", "Sahara Merzouga (2 N.)", "Ouarzazate (1 N.)", "Essaouira (2 N.)", "Marrakesch / Rückflug (1 N.)"],
+      stages: [
+        {
+          id: "t1_marrakech",
+          title: "🕌 3. Marrakesch (3 Nächte • 1 DZ + 1 EZ)",
+          meta: "Ankommen, Medina & Souks",
+          options: [
+            { tier: "budget", price: 980, name: "Riad Palais Sebban / Riad Kniza (Boutique-Riad)", desc: "Authentisches Riad in der Medina mit beheiztem Hofpool, Dachterrasse & Frühstück.", link: "https://www.palaissebban.com/" },
+            { tier: "balanced", price: 1850, name: "Les Jardins de la Koutoubia (5★ direkt an der Medina)", desc: "Perfekte Lage am Djemaa el-Fna, beheizter Pool, Spa & Parkplatz für den Mietwagen.", link: "https://www.lesjardinsdelakoutoubia.com/" },
+            { tier: "luxury", price: 3600, name: "Four Seasons Resort Marrakech (5★ Luxus-Resort)", desc: "Weitläufige Gartenanlage mit beheiztem Pool & Valet-Parking im Viertel Hivernage.", link: "https://www.fourseasons.com/marrakech/" }
+          ]
+        },
+        {
+          id: "t1_atlas",
+          title: "🏔 4. Aït-Ben-Haddou & Dadès-Schlucht (2 Nächte über Silvester)",
+          meta: "Hoher Atlas & Straße der Kasbahs • 1 DZ + 1 EZ",
+          options: [
+            { tier: "budget", price: 480, name: "Hotel Xaluca Dades (4★ Panoramahotel inkl. HP)", desc: "Gemütliches Berghotel oberhalb des Dadès-Tals inkl. Silvester-Dinner.", link: "https://www.xaluca.com/" },
+            { tier: "balanced", price: 760, name: "Ksar Ighnda / Eden Boutique Hotel (4★+ Boutique-Kasbah)", desc: "Stilvolle Lehmbau-Kasbah mit beheizten Zimmern, hervorragender Küche & Bergblick.", link: "https://www.ksarighnda.com/" },
+            { tier: "luxury", price: 1350, name: "Le Berbère Palace Suite-Upgrade (5★ Luxus)", desc: "Großzügige Suiten mit festlichem Jahreswechsel-Menü und beheiztem Pool.", link: "https://www.berberepalace.com/" }
+          ]
+        },
+        {
+          id: "t1_desert",
+          title: "🏜 5. Sahara-Wüste Merzouga (2 Nächte • 2 Luxuszelte inkl. HP)",
+          meta: "Große Sanddünen von Erg Chebbi • inkl. 4x4-Transfer",
+          options: [
+            { tier: "budget", price: 690, name: "Dunes Luxury Camp Merzouga (Glamping inkl. HP)", desc: "Komfortable Zelte mit eigenem Bad/Warmwasser, Lagerfeuer & Abendessen.", link: "https://www.dunesluxurycamp.com/" },
+            { tier: "balanced", price: 1050, name: "Sahara Majestic Luxury Camp (5★ Luxury Glamping)", desc: "Geräumige, gut isolierte Luxuszelte mitten in den Dünen inkl. 4-Gänge-Dinner.", link: "https://www.saharamajesticluxurycamp.com/" },
+            { tier: "luxury", price: 1850, name: "Desert Luxury Camp – Private Dünen-Sektion (5★ Deluxe)", desc: "Exklusives Boutique-Camp abseits der Masse mit gehobener Gastronomie.", link: "https://www.desertluxurycamp.com/" }
+          ]
+        },
+        {
+          id: "t1_coast",
+          title: "🌊 6. Ouarzazate (1 N.) + Essaouira (2 N.) + Abschluss (1 N.)",
+          meta: "Entspannte Rückreise & Atlantikküste • 4 Nächte gesamt (1 DZ + 1 EZ)",
+          options: [
+            { tier: "budget", price: 890, name: "Karam Palace (1 N.) + Riad Zahra Essaouira (2 N.) + Barceló (1 N.)", desc: "Gute 4★-Hotels mit Frühstück und kurzen Wegen zum Meer & Flughafen.", link: "https://www.riadzahra.com/" },
+            { tier: "balanced", price: 1620, name: "Le Berbère Palace (1 N.) + Heure Bleue Palais (2 N.) + Radisson Blu (1 N.)", desc: "Relais & Châteaux Boutique-Hotel mit beheiztem Dachpool am Meer in Essaouira.", link: "https://www.heure-bleue.com/" },
+            { tier: "luxury", price: 2450, name: "Le Berbère Palace (1 N.) + Sofitel Essaouira Mogador (2 N.) + Oberoi/Four Seasons (1 N.)", desc: "5★-Luxusresorts zum entspannten Ausklang am Atlantik und vor dem Rückflug.", link: "https://all.accor.com/" }
+          ]
+        }
+      ]
+    },
+    tour2: {
+      title: "Tour 2: Entschleunigte Luxus- & Genussreise (11 Nächte)",
+      gmaps: "https://www.google.com/maps/dir/Marrakech,+Marokko/Agafay,+Marokko/Imlil,+Marokko/Essaouira,+Marokko/Marrakech,+Marokko",
+      bbox: "-10.1,30.8,-7.4,32.0",
+      stops: ["Start: Flughafen", "Marrakesch (4 N.)", "Agafay-Wüste (2 N.)", "Hoher Atlas Imlil/Ouirgane (2 N.)", "Essaouira (3 N.)", "Rückflug"],
+      stages: [
+        {
+          id: "t2_marrakech",
+          title: "🕌 3. Marrakesch über Silvester (4 Nächte • 1 DZ + 1 EZ)",
+          meta: "Ausführlich Zeit für Paläste, Dachterrassen & Spas",
+          options: [
+            { tier: "budget", price: 1300, name: "Riad Kniza / Riad Palais Sebban (4 Nächte)", desc: "Charmantes Boutique-Riad in der Altstadt inklusive Frühstück.", link: "https://www.palaissebban.com/" },
+            { tier: "balanced", price: 2450, name: "La Sultana Marrakech / Les Jardins de la Koutoubia (5★)", desc: "Erstklassiges 5★-Haus mit beheiztem Pool, Spa & direkter Altstadtlage.", link: "https://www.lasultanahotels.com/" },
+            { tier: "luxury", price: 4400, name: "Es Saadi Marrakech Resort – Palace (5★ Luxus)", desc: "Großzügige Suiten im riesigen Privatpark mit beheiztem Lagunenpool.", link: "https://www.essaadi.com/" }
+          ]
+        },
+        {
+          id: "t2_agafay",
+          title: "🏕 4. Agafay-Steinwüste (2 Nächte • nur 45 Min. ab Marrakesch)",
+          meta: "Wüsten-Glamping mit Blick auf den schneebedeckten Hohen Atlas",
+          options: [
+            { tier: "budget", price: 680, name: "Oxygen Lodge Agafay (2 Zelte inkl. Abendessen & Frühstück)", desc: "Stilvolle Wüsten-Lodges mit Panoramablick und Lagerfeuer.", link: "https://www.oxygenlodgeagafay.com/" },
+            { tier: "balanced", price: 1150, name: "Inara Camp Agafay (Luxury Wüstencamp inkl. HP)", desc: "Sehr hochwertige Zelte mit eigenem Bad, Kaminbereich und Top-Küche.", link: "https://www.inaracamp.com/" },
+            { tier: "luxury", price: 1750, name: "Scarabeo Camp (Exklusives Design-Camp inkl. HP)", desc: "Ikonisches Vintage-Explorer-Camp auf den Hügeln der Agafay-Wüste.", link: "https://www.scarabeocamp.com/" }
+          ]
+        },
+        {
+          id: "t2_atlas",
+          title: "🏔 5. Hoher Atlas – Imlil / Ouirgane (2 Nächte)",
+          meta: "Grüne Bergtäler & Berberdörfer (nur ca. 1 Std. Fahrzeit)",
+          options: [
+            { tier: "budget", price: 540, name: "Domaine de la Roseraie (4★ Traditionshotel im Grünen)", desc: "Weitläufiger Berggarten mit beheiztem Pool und Kaminzimmern.", link: "https://www.laroseraie.com/" },
+            { tier: "balanced", price: 820, name: "Kasbah Angour / Olinto Atlas (Boutique-Berghotel)", desc: "Traumhafter Panoramablick über das Atlasgebirge, sehr ruhig.", link: "https://www.kasbahangour.com/" },
+            { tier: "luxury", price: 2400, name: "Kasbah Tamadot – Virgin Limited Edition (5★ Luxus)", desc: "Richard Bransons berühmtes Luxus-Retreat im Hohen Atlas.", link: "https://www.virginlimitededition.com/kasbah-tamadot/" }
+          ]
+        },
+        {
+          id: "t2_essaouira",
+          title: "🌊 6. Essaouira Atlantikküste (3 Nächte)",
+          meta: "Entspannter Abschluss am Meer (ca. 2,5 Std. zum Flughafen RAK/AGA)",
+          options: [
+            { tier: "budget", price: 540, name: "Riad Zahra Essaouira (3 Nächte inkl. Frühstück)", desc: "Beliebtes Boutique-Riad nahe Strandpromenade und Hafen.", link: "https://www.riadzahra.com/" },
+            { tier: "balanced", price: 1290, name: "Heure Bleue Palais / Villa Maroc (5★ Boutique)", desc: "Beheizter Dachpool, erstklassige Küche und historische Medina-Lage.", link: "https://www.heure-bleue.com/" },
+            { tier: "luxury", price: 1850, name: "Sofitel Essaouira Mogador Golf & Spa (5★ Resort)", desc: "Großes Wellness-Resort mit beheiztem Pool direkt am Meer/Golfplatz.", link: "https://all.accor.com/" }
+          ]
+        }
+      ]
+    },
+    tour3: {
+      title: "Tour 3: Süd-Marokko Explorer (10 Nächte)",
+      gmaps: "https://www.google.com/maps/dir/Marrakech,+Marokko/Skoura,+Marokko/Zagora,+Marokko/Taroudant,+Marokko/Marrakech,+Marokko",
+      bbox: "-9.8,29.8,-5.2,32.0",
+      stops: ["Start: Flughafen", "Marrakesch (3 N.)", "Oase Skoura (1 N.)", "Zagora / Draa-Tal (2 N.)", "Taroudant (2 N.)", "Marrakesch / Rückflug (2 N.)"],
+      stages: [
+        {
+          id: "t3_marrakech1",
+          title: "🕌 3. Marrakesch zum Start (3 Nächte • 1 DZ + 1 EZ)",
+          meta: "Jahreswechsel & Altstadt",
+          options: [
+            { tier: "budget", price: 950, name: "Kenzi Rose Garden (5★ im Viertel Hivernage)", desc: "Moderne Zimmer, Gartenanlage und beheizter Pool.", link: "https://www.kenzi-hotels.com/" },
+            { tier: "balanced", price: 1850, name: "Les Jardins de la Koutoubia (5★ an der Medina)", desc: "Zentrale Lage direkt am Hauptplatz mit Spa & Dachterrasse.", link: "https://www.lesjardinsdelakoutoubia.com/" },
+            { tier: "luxury", price: 2900, name: "Riad El Fenn / Royal Mansour (5★ Luxus)", desc: "Design-Boutique-Palast mit mehreren Pools und Dachterrasse.", link: "https://el-fenn.com/" }
+          ]
+        },
+        {
+          id: "t3_skoura",
+          title: "🌴 4. Palmenoase Skoura / Ouarzazate (1 Nacht)",
+          meta: "Zwischenstopp auf dem Weg ins Draa-Tal",
+          options: [
+            { tier: "budget", price: 240, name: "Ksar Ben Youssef Skoura (4★ Oasen-Hotel)", desc: "Gemütliche Lehmbau-Unterkunft inmitten der Palmenhaine.", link: "https://www.ksarbenyoussef.com/" },
+            { tier: "balanced", price: 460, name: "Les Jardins de Skoura (Boutique-Kasbah)", desc: "Verstecktes Garten-Refugium mit exzellenter marokkanischer Küche.", link: "https://www.lesjardinsdeskoura.com/" },
+            { tier: "luxury", price: 980, name: "Dar Ahlam Skoura (5★ Relais & Châteaux)", desc: "Eines der exklusivsten Kasbah-Hotels Marokkos inkl. Vollpension.", link: "https://www.darahlam.com/" }
+          ]
+        },
+        {
+          id: "t3_zagora",
+          title: "🏜 5. Zagora & Dünen von Erg Chigaga (2 Nächte inkl. HP)",
+          meta: "Ursprüngliche Sahara im Süden des Draa-Tals",
+          options: [
+            { tier: "budget", price: 460, name: "Le Palais Asmaa Zagora (4★ Kasbah-Hotel inkl. HP)", desc: "Traditionelles Hotel am Rand der Oase von Zagora.", link: "https://www.palaisasmaa.com/" },
+            { tier: "balanced", price: 890, name: "Azalai Desert Lodge (Boutique-Lodge am Wüstenrand)", desc: "Stilvolle Zelte & Suiten im Palmenhain inkl. Abendessen.", link: "https://www.azalai.com/" },
+            { tier: "luxury", price: 1550, name: "Erg Chigaga Luxury Desert Camp (5★ Glamping)", desc: "Abgelegenes Luxuscamp mitten in den großen Sanddünen.", link: "https://www.ergchigagaluxurycamp.com/" }
+          ]
+        },
+        {
+          id: "t3_taroudant",
+          title: "🍊 6. Taroudant (2 N.) & Marrakesch Abschluss (2 N.)",
+          meta: "Anti-Atlas, Orangenplantagen & Spa-Ausklang • 4 Nächte gesamt",
+          options: [
+            { tier: "budget", price: 890, name: "Palais Salam Taroudant (2 N.) + Barceló Palmeraie (2 N.)", desc: "Historisches Palasthotel innerhalb der Stadtmauern plus 5★-Resort zum Abschluss.", link: "https://www.barcelo.com/" },
+            { tier: "balanced", price: 1480, name: "Dar Zitoune Taroudant (2 N.) + Mövenpick Mansour Eddahbi (2 N.)", desc: "Garten-Bungalows in Taroudant & modernes 5★-Spa-Hotel in Marrakesch.", link: "https://movenpick.accor.com/" },
+            { tier: "luxury", price: 2650, name: "La Gazelle d'Or Taroudant (2 N.) + Four Seasons Marrakech (2 N.)", desc: "Legendäres Luxus-Refugium in Taroudant und 5★-Ausklang.", link: "https://www.fourseasons.com/marrakech/" }
+          ]
+        }
+      ]
+    }
+  };
+
+  let currentTourKey = "tour1";
+  let currentPreset = "balanced";
+
+  function renderTourStages() {
+    const tour = TOURS[currentTourKey];
+    document.getElementById("mapTitle").textContent = "🗺 Routenverlauf: " + tour.title;
+    document.getElementById("gmapsLink").href = tour.gmaps;
+    document.getElementById("mapFrame").src =
+      "https://www.openstreetmap.org/export/embed.html?bbox=" + encodeURIComponent(tour.bbox) + "&layer=mapnik";
+
+    const pillsEl = document.getElementById("routePills");
+    pillsEl.innerHTML = tour.stops.map((s, i) =>
+      `<span class="pill">${s}</span>${i < tour.stops.length - 1 ? "<span>→</span>" : ""}`
+    ).join("");
+
+    const container = document.getElementById("tourStagesContainer");
+    container.innerHTML = tour.stages.map(stage => {
+      const cardsHtml = stage.options.map((opt, idx) => {
+        const isSelected = opt.tier === currentPreset || (!stage.options.some(o => o.tier === currentPreset) && idx === 1);
+        const badge = opt.tier === "budget"
+          ? '<span class="badge badge-save">Sparhebel</span>'
+          : (opt.tier === "luxury" ? '<span class="badge badge-lux">Luxus</span>' : "");
+        return `
+          <div class="option-card ${isSelected ? "selected" : ""}" data-price="${opt.price}" data-tier="${opt.tier}" data-label="${opt.name}">
+            <div class="option-top">
+              <div class="selector-box">✓</div>
+              <div class="option-main">
+                <div class="option-title-row">
+                  <span class="option-name">${opt.name} ${badge}</span>
+                  <span class="option-price">ca. ${opt.price.toLocaleString("de-DE")} € gesamt</span>
+                </div>
+                <p class="option-desc">${opt.desc}</p>
+              </div>
+            </div>
+            <div class="option-actions">
+              <a class="ext-link" href="${opt.link}" target="_blank">🌐 Webseite / Verfügbarkeit prüfen ↗</a>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <section class="stage" data-group="${stage.id}">
+          <div class="stage-header">
+            <h2 class="stage-title">${stage.title}</h2>
+            <span class="stage-meta">${stage.meta}</span>
+          </div>
+          ${cardsHtml}
+        </section>
+      `;
+    }).join("");
+
+    updateTotal();
+  }
+
+  function applyPresetToFixedStages(preset) {
+    ["flights", "car"].forEach(group => {
+      const section = document.querySelector(`.stage[data-group="${group}"]`);
+      if (!section) return;
+      const cards = Array.from(section.querySelectorAll(".option-card"));
+      const match = cards.find(c => c.dataset.tier === preset) || cards[0];
+      cards.forEach(c => c.classList.remove("selected"));
+      if (match) match.classList.add("selected");
+    });
+  }
+
+  function updateTotal() {
+    let sum = 0;
+    document.querySelectorAll(".option-card.selected").forEach(card => {
+      sum += parseInt(card.dataset.price || "0", 10);
+    });
+    const perPerson = Math.round(sum / 3);
+    document.getElementById("totalDisplay").textContent =
+      `${sum.toLocaleString("de-DE")} € gesamt (ca. ${perPerson.toLocaleString("de-DE")} € p. P.)`;
+  }
+
+  document.getElementById("tourSelector").addEventListener("click", function(e) {
+    const btn = e.target.closest(".tour-btn");
+    if (!btn) return;
+    document.querySelectorAll(".tour-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentTourKey = btn.dataset.tour;
+    renderTourStages();
+  });
+
+  document.getElementById("presetSelector").addEventListener("click", function(e) {
+    const btn = e.target.closest(".preset-btn");
+    if (!btn) return;
+    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentPreset = btn.dataset.preset;
+    applyPresetToFixedStages(currentPreset);
+    renderTourStages();
+  });
+
+  document.addEventListener("click", function(e) {
+    const top = e.target.closest(".option-top");
+    if (top) {
+      const card = top.closest(".option-card");
+      const section = card.closest(".stage");
+      section.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      updateTotal();
+      return;
+    }
+
+    const toggleBtn = e.target.closest(".toggle-details");
+    if (toggleBtn) {
+      const panel = toggleBtn.closest(".option-card").querySelector(".details-panel");
+      if (panel) {
+        const isOpen = panel.classList.toggle("open");
+        toggleBtn.textContent = isOpen ? "▴ Hinweise einklappen" : "▾ Routen-Hinweis ausklappen";
+      }
+    }
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", function() {
+    const lines = [`🇲🇦 Marokko Reiseplanung – ${TOURS[currentTourKey].title} (3 Personen)
+`];
+    document.querySelectorAll(".stage").forEach(section => {
+      const title = section.querySelector(".stage-title").textContent;
+      const selected = section.querySelector(".option-card.selected");
+      if (selected) {
+        lines.push(`${title}: ${selected.dataset.label} (${selected.querySelector(".option-price").textContent})`);
+      }
+    });
+    lines.push(`
+Gesamtsumme: ${document.getElementById("totalDisplay").textContent}`);
+    navigator.clipboard.writeText(lines.join("
+")).then(() => {
+      const btn = document.getElementById("copyBtn");
+      const old = btn.textContent;
+      btn.textContent = "✅ In Zwischenablage kopiert!";
+      setTimeout(() => { btn.textContent = old; }, 2200);
+    });
+  });
+
+  renderTourStages();
+</script>
+</body>
+</html>
