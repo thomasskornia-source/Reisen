@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ägypten Reiseplaner 2026/2027 – Interaktiv</title>
+<style>
+  :root {
+    --primary: #1a365d;
+    --accent: #c59b27;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --green: #15803d;
+    --green-bg: #dcfce7;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0 0 110px 0;
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, #0f294a 0%, #1e4275 100%);
+    color: #fff;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px 0; font-size: 1.7rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+  .presets {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 24px;
+    background: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .presets button {
+    border: 2px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .presets button:hover { background: var(--primary); color: #fff; }
+  .presets button.save-btn { border-color: var(--green); color: var(--green); }
+  .presets button.save-btn:hover { background: var(--green); color: #fff; }
+  .section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .section-header h2 { margin: 0; font-size: 1.25rem; color: var(--primary); }
+  .badge-date {
+    background: #e0e7ff;
+    color: #1e3a8a;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .option-list { display: flex; flex-direction: column; gap: 12px; }
+  .option-item {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    background: #fff;
+    overflow: hidden;
+  }
+  .option-item.selected {
+    border-color: var(--primary);
+    background: #f8fafc;
+    box-shadow: 0 4px 12px rgba(26, 54, 93, 0.08);
+  }
+  .option-main {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .option-main input[type="radio"], .option-main input[type="checkbox"] {
+    margin-top: 4px;
+    transform: scale(1.25);
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .option-content { flex: 1; }
+  .option-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .option-title { font-weight: 700; font-size: 1.02rem; color: var(--text); }
+  .option-price { font-weight: 700; color: var(--primary); font-size: 1rem; white-space: nowrap; }
+  .option-desc { font-size: 0.88rem; color: var(--muted); margin-top: 4px; }
+  .tag-save {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .option-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px 12px 42px;
+    border-top: 1px dashed var(--border);
+    background: #fcfcfd;
+    flex-wrap: wrap;
+  }
+  .btn-details {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-details:hover { background: #dbeafe; }
+  .ext-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ext-link:hover { text-decoration: underline; color: #0f294a; }
+  .details-drawer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    background: #f1f5f9;
+    padding: 0 18px;
+    border-top: 0 solid var(--border);
+  }
+  .details-drawer.open {
+    max-height: 550px;
+    padding: 16px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .drawer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 680px) { .drawer-grid { grid-template-columns: 1fr; } }
+  .drawer-box h4 { margin: 0 0 6px 0; font-size: 0.9rem; color: var(--primary); }
+  .drawer-box ul { margin: 0; padding-left: 18px; font-size: 0.85rem; color: #334155; }
+  .drawer-box li { margin-bottom: 4px; }
+  .drawer-links { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .drawer-links a {
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 13px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .drawer-links a.secondary {
+    background: #fff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+  .itinerary-toggle {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+  }
+  .itinerary-content {
+    display: none;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    font-size: 0.88rem;
+    background: #fff;
+  }
+  .itinerary-content.open { display: block; }
+  .sticky-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0f294a;
+    color: #fff;
+    padding: 14px 20px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.18);
+    z-index: 100;
+  }
+  .footer-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .price-summary { display: flex; flex-direction: column; }
+  .total-label { font-size: 0.78rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; }
+  .total-amount { font-size: 1.35rem; font-weight: 800; color: #fbbf24; }
+  .per-person { font-size: 0.85rem; opacity: 0.9; }
+  .copy-btn {
+    background: #fbbf24;
+    color: #0f294a;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .copy-btn:hover { background: #f59e0b; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🇪🇬 Ägypten Reiseplaner (Silvester 2026 / 2027)</h1>
+  <p>28.12.2026 – 08.01.2027 • 3 Personen • Kairo, Dahabiya-Nilkreuzfahrt & Hurghada</p>
+</header>
+
+<div class="container">
+
+  <div class="presets">
+    <button type="button" class="save-btn" onclick="applyPreset('budget')">💚 Spar-Mix aktivieren</button>
+    <button type="button" onclick="applyPreset('balanced')">⚖️ Preis-Leistungs-Mix</button>
+    <button type="button" onclick="applyPreset('luxury')">👑 Luxus-Auswahl</button>
+  </div>
+
+  <!-- 1. FLÜGE -->
+  <div class="section">
+    <div class="section-header">
+      <h2>✈️ 1. Flüge (München ↔ Ägypten + Inlandsflug)</h2>
+      <span class="badge-date">28.12. / 31.12. / 08.01.</span>
+    </div>
+    <div class="option-list">
+      <div class="option-item" data-group="flights">
+        <label class="option-main">
+          <input type="radio" name="flights" value="2450" data-label="1-Stopp-Verbindung (z.B. Turkish/Aegean) + Inlandsflug" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">1-Stopp-Gabelflug (MUC–CAI / HRG–MUC) + Inlandsflug <span class="tag-save">Sparhebel</span></span>
+              <span class="option-price">ca. 2.450 € gesamt</span>
+            </div>
+            <div class="option-desc">Z. B. via Istanbul oder Athen inkl. Gepäck + Direktflug Kairo–Luxor am 31.12. (ca. 815 € p. P.)</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <a class="ext-link" href="https://www.google.com/travel/flights?q=Flights%20from%20MUC%20to%20CAI%20on%202026-12-28%20and%20HRG%20to%20MUC%20on%202027-01-08" target="_blank" rel="noopener">🔗 Bei Google Flüge prüfen ↗</a>
+        </div>
+      </div>
+
+      <div class="option-item" data-group="flights">
+        <label class="option-main">
+          <input type="radio" name="flights" value="3150" data-label="Direktflüge (Lufthansa/EgyptAir) + Inlandsflug" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Direktflüge (Lufthansa / EgyptAir) + Inlandsflug</span>
+              <span class="option-price">ca. 3.150 € gesamt</span>
+            </div>
+            <div class="option-desc">Schnellste Verbindung ohne Umstieg auf der Langstrecke + Nonstop Kairo–Luxor (ca. 1.050 € p. P.)</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <a class="ext-link" href="https://www.google.com/travel/flights?q=Nonstop%20Flights%20from%20MUC%20to%20CAI%20on%202026-12-28" target="_blank" rel="noopener">🔗 Direktflüge suchen ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. KAIRO HOTELS -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🏛️ 2. Kairo Hotel (3 Nächte • 1 DZ + 1 EZ)</h2>
+      <span class="badge-date">28.12. – 31.12.2026</span>
+    </div>
+    <div class="option-list">
+
+      <!-- Budget Kairo -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="1100" data-label="Steigenberger Hotel El Tahrir (4* Zentral)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Steigenberger Hotel El Tahrir (4* Superior) <span class="tag-save">Sparhebel</span></span>
+              <span class="option-price">ca. 1.100 € gesamt</span>
+            </div>
+            <div class="option-desc">Moderne Zimmer direkt am Tahrir-Platz, idealer Ausgangspunkt zwischen Gizeh und Alt-Kairo (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-tahrir')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://hrewards.com/de/steigenberger-hotel-el-tahrir-cairo" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-tahrir" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Warum dieses Hotel?</h4>
+              <ul>
+                <li>Sehr gutes Preis-Leistungs-Verhältnis über Silvester</li>
+                <li>Moderner, europäischer 4-Sterne-Standard</li>
+                <li>Kurze Wege nach Alt-Kairo (ca. 15 Min.)</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Ausstattung</h4>
+              <ul>
+                <li>Beheizter Außenpool & Fitnessbereich</li>
+                <li>Sehr gutes Frühstücksbuffet inklusive</li>
+                <li>Ruhige, schallisolierte Zimmer</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://hrewards.com/de/steigenberger-hotel-el-tahrir-cairo" target="_blank" rel="noopener">Hotel-Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels/entity/CgoI75-4o83P26kKEAE/photos" target="_blank" rel="noopener">📸 Fotos & Bewertungen ansehen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sofitel -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="2250" data-label="Sofitel Cairo Nile El Gezirah (5* Nilinsel)" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Sofitel Cairo Nile El Gezirah (5* Luxus)</span>
+              <span class="option-price">ca. 2.250 € gesamt</span>
+            </div>
+            <div class="option-desc">Traumhafte Lage an der Südspitze der Nilinsel Zamalek mit Blick auf den Nil (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-sofitel')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.sofitel-cairo-nile-el-gezirah.com/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-sofitel" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Alle Zimmer mit eigenem Balkon & Nilblick</li>
+                <li>Ruhige Insel-Lage im grünen Viertel Zamalek</li>
+                <li>Beliebte Nil-Promenade direkt am Wasser</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage & Gastronomie</h4>
+              <ul>
+                <li>Perfekt mittig zwischen Gizeh & Islamischem Kairo</li>
+                <li>Mehrere Spezialitäten-Restaurants am Nilufer</li>
+                <li>Beheizter Infinity-Pool über dem Fluss</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.sofitel-cairo-nile-el-gezirah.com/" target="_blank" rel="noopener">Sofitel Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Sofitel%20Cairo%20Nile%20El%20Gezirah" target="_blank" rel="noopener">📸 Fotos & Preise prüfen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kempinski -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="2350" data-label="Kempinski Nile Hotel Garden City (5* Boutique)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Kempinski Nile Hotel Garden City Cairo (5*)</span>
+              <span class="option-price">ca. 2.350 € gesamt</span>
+            </div>
+            <div class="option-desc">Intimes, elegantes Boutique-Luxushotel im Botschaftsviertel Garden City direkt am Nilufer (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-kempinski')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.kempinski.com/en/kempinski-nile-hotel" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-kempinski" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Kleiner & persönlicher als die großen Kettenhotels</li>
+                <li>Dachterrassen-Pool mit Panoramablick über Kairo</li>
+                <li>Persönlicher Butler-Service auf allen Etagen</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage</h4>
+              <ul>
+                <li>Direkt im ruhigen Viertel Garden City am Nil</li>
+                <li>Nur ca. 10–15 Min. nach Alt-Kairo</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.kempinski.com/en/kempinski-nile-hotel" target="_blank" rel="noopener">Kempinski Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Kempinski%20Nile%20Hotel%20Garden%20City%20Cairo" target="_blank" rel="noopener">📸 Fotos & Preise prüfen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cairo Marriott -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="2150" data-label="Cairo Marriott Hotel & Omar Khayyam Casino (5*)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Cairo Marriott Hotel & Omar Khayyam Casino (5*)</span>
+              <span class="option-price">ca. 2.150 € gesamt</span>
+            </div>
+            <div class="option-desc">Historischer Königspalast von 1869 mit weitläufiger Gartenanlage auf Zamalek (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-marriott')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.marriott.com/en-us/hotels/caieg-cairo-marriott-hotel-and-omar-khayyam-casino/overview/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-marriott" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Prachtvoller historischer Palast-Kern mit Garten</li>
+                <li>Über 10 Restaurants, Cafés & Terrassen im Garten</li>
+                <li>Sehr lebendige Atmosphäre im Viertel Zamalek</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Hinweis</h4>
+              <ul>
+                <li>Großes Resort-Hotel mit vielen Zimmern</li>
+                <li>Top-Ausgangspunkt für abendliche Spaziergänge auf Zamalek</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.marriott.com/en-us/hotels/caieg-cairo-marriott-hotel-and-omar-khayyam-casino/overview/" target="_blank" rel="noopener">Marriott Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Cairo%20Marriott%20Hotel%20Omar%20Khayyam%20Casino" target="_blank" rel="noopener">📸 Fotos & Preise prüfen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ritz-Carlton -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="2650" data-label="The Nile Ritz-Carlton, Cairo (5* Luxus)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">The Nile Ritz-Carlton, Cairo (5* Luxus)</span>
+              <span class="option-price">ca. 2.650 € gesamt</span>
+            </div>
+            <div class="option-desc">Klassischer Luxus direkt zwischen Nilufer und Tahrir-Platz (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-ritz')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.ritzcarlton.com/en/hotels/cairz-the-nile-ritz-carlton-cairo/overview/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-ritz" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Sehr großzügige Zimmer und erstklassiger Service</li>
+                <li>Großer Poolbereich mit Garten mitten im Zentrum</li>
+                <li>Beliebte Rooftop-Bar mit Blick über den Nil</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage</h4>
+              <ul>
+                <li>Direkt im Herzen Kairos gelegen</li>
+                <li>Schnelle Anbindung an alle Stadtteile</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.ritzcarlton.com/en/hotels/cairz-the-nile-ritz-carlton-cairo/overview/" target="_blank" rel="noopener">Ritz-Carlton Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=The%20Nile%20Ritz-Carlton%20Cairo" target="_blank" rel="noopener">📸 Fotos & Preise prüfen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mena House -->
+      <div class="option-item" data-group="cairo">
+        <label class="option-main">
+          <input type="radio" name="cairo" value="2850" data-label="Marriott Mena House, Cairo (5* Pyramidenblick)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Marriott Mena House, Cairo (5* Direkt an den Pyramiden)</span>
+              <span class="option-price">ca. 2.850 € gesamt</span>
+            </div>
+            <div class="option-desc">Legendäres Palasthotel direkt am Fuß der Pyramiden von Gizeh mit unvergleichlichem Blick (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-mena')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.marriott.com/en-us/hotels/caimn-marriott-mena-house-cairo/overview/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-mena" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Frühstück und Pool mit direktem Blick auf die Cheops-Pyramide</li>
+                <li>Nur 5 Minuten zum Grand Egyptian Museum (GEM)</li>
+                <li>Historisches Flair (ehemaliges königliches Jagdschloss)</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Wichtiger Hinweis zur Lage</h4>
+              <ul>
+                <li>Liegt in Gizeh (ca. 45–60 Min. Fahrt bis Alt-Kairo)</li>
+                <li>Ideal für Tag 2 (Pyramiden & GEM), etwas weiter für Tag 3</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.marriott.com/en-us/hotels/caimn-marriott-mena-house-cairo/overview/" target="_blank" rel="noopener">Mena House Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Marriott%20Mena%20House%20Cairo" target="_blank" rel="noopener">📸 Fotos & Preise prüfen ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="itinerary-toggle" onclick="toggleItinerary()">
+      <span>📅 Detaillierten Tagesplan für Kairo (28.12. – 31.12.) anzeigen</span>
+      <span>▾</span>
+    </div>
+    <div id="cairo-itinerary" class="itinerary-content">
+      <p><strong>Mo, 28.12.:</strong> Landung in Kairo, Privattransfer im Minivan zum Hotel, entspanntes Abendessen am Nil.</p>
+      <p><strong>Di, 29.12.:</strong> 08:00 Uhr Pyramiden von Gizeh & Sphinx (vor dem großen Andrang) → Mittagessen mit Pyramidenblick → Nachmittags Grand Egyptian Museum (GEM, ca. 3–4 Std.).</p>
+      <p><strong>Mi, 30.12.:</strong> 09:00 Uhr Koptisches Kairo (Hängende Kirche, Sergios-Kirche) → Mittagessen in der Altstadt → Nachmittags Islamisches Kairo (Al-Muizz-Straße & Basar Khan el-Khalili).</p>
+      <p><strong>Do, 31.12.:</strong> Vormittags Inlandsflug Kairo → Luxor & Einschiffung auf die Dahabiya pünktlich zum Silvesterabend.</p>
+    </div>
+  </div>
+
+  <!-- 3. DAHABIYA -->
+  <div class="section">
+    <div class="section-header">
+      <h2>⛵ 3. Dahabiya Nilkreuzfahrt (5 Nächte • Dreier-Suite)</h2>
+      <span class="badge-date">31.12.2026 – 05.01.2027</span>
+    </div>
+    <div class="option-list">
+
+      <!-- Budget Dahabiya -->
+      <div class="option-item" data-group="cruise">
+        <label class="option-main">
+          <input type="radio" name="cruise" value="4700" data-label="Klassische Dahabiya (z.B. Jasmin / Sonesta Amirat – 3er-Belegung)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Klassische Dahabiya (z. B. Dahabiya Jasmin / Sonesta Amirat) <span class="tag-save">Größter Sparhebel</span></span>
+              <span class="option-price">ca. 4.700 € gesamt</span>
+            </div>
+            <div class="option-desc">Charmante traditionelle Segelyacht für 3 Personen inkl. Vollpension, Tempelführungen & Silvester-Dinner (ca. 1.565 € p. P.).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-jasmin')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.dahabiya-nile-sailing.com/" target="_blank" rel="noopener">🌐 Dahabiya Jasmin ↗</a>
+          <a class="ext-link" href="https://www.sonesta.com/sonesta-collection/eg/luxor/sonesta-amirat-dahabiya" target="_blank" rel="noopener">🌐 Sonesta Amirat ↗</a>
+        </div>
+        <div id="drawer-jasmin" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Leistungen & Atmosphäre</h4>
+              <ul>
+                <li>Kleines Segelschiff mit nur 6–8 Kabinen (keine Massenabfertigung)</li>
+                <li>Vollpension an Bord & alle Tempel-Eintritte inkludiert</li>
+                <li>Anlegen an kleinen Nilinseln abseits der großen Kreuzer</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Buchungstipp</h4>
+              <ul>
+                <li>Auch über deutsche Spezialveranstalter wie Memnon Reisen buchbar</li>
+                <li>Unbedingt gezielt nach Dreierbelegung / Suite fragen</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.dahabiya-nile-sailing.com/" target="_blank" rel="noopener">Dahabiya Jasmin öffnen ↗</a>
+            <a class="secondary" href="https://www.memnonreisen.de/nilkreuzfahrt/dahabiya-nilkreuzfahrt/" target="_blank" rel="noopener">Memnon Reisen (DE) ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nour El Nil -->
+      <div class="option-item" data-group="cruise">
+        <label class="option-main">
+          <input type="radio" name="cruise" value="6900" data-label="Nour El Nil – Deluxe Suite für 3 Personen (5 Nächte)" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Nour El Nil – Deluxe Suite (3er-Belegung)</span>
+              <span class="option-price">ca. 6.900 € gesamt</span>
+            </div>
+            <div class="option-desc">Renommierter Boutique-Anbieter mit regulärer 5-Nächte-Route (Esna → Assuan), großzügige Heck-Suite, Vollpension & Guide.</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-nourelnil')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.nourelnil.com/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-nourelnil" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Die Deluxe Suite (bis 4 Pers.)</h4>
+              <ul>
+                <li>Liegt am Heck des Schiffes mit Panoramafenstern</li>
+                <li>Separater Wohn-/Sitzbereich, viel Platz für 3 Erwachsene</li>
+                <li>Liebevoll restaurierte Holz-Segelschiffe mit Stil</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Route & Besonderheiten</h4>
+              <ul>
+                <li>Fährt standardmäßig genau 5 Nächte (Esna bis Assuan)</li>
+                <li>Exzellente Bordküche & ausgewählte, ruhige Ankerplätze</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.nourelnil.com/" target="_blank" rel="noopener">Nour El Nil Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.nourelnil.com/search/" target="_blank" rel="noopener">Suite-Details & Grundrisse ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Princess Farida -->
+      <div class="option-item" data-group="cruise">
+        <label class="option-main">
+          <input type="radio" name="cruise" value="7800" data-label="Princess Farida – Royal Suite mit Privat-Terrasse (3 Personen)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Princess Farida – King Farouq / Queen Nazli Royal Suite</span>
+              <span class="option-price">ca. 7.800 € gesamt</span>
+            </div>
+            <div class="option-desc">35 m² Luxus-Suite für 3 Gäste mit eigener Heck-Terrasse, Vollpension, privaten Ausflügen & Silvester-Gala.</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-farida')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.princessfarida.com/suites/" target="_blank" rel="noopener">🌐 Offizielle Suiten-Seite ↗</a>
+        </div>
+        <div id="drawer-farida" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Royal Suite (explizit 1–3 Gäste)</h4>
+              <ul>
+                <li>35 m² Fläche inkl. Kingsize-Bett + vollwertigem Zusatzbett</li>
+                <li>Private Außenterrasse direkt am Heck über dem Nil</li>
+                <li>Sehr moderner, hochwertiger Boutique-Standard</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Wichtiger Hinweis</h4>
+              <ul>
+                <li>Standard-Törn dauert 4 Nächte – für 31.12.–05.01. gezielt 5-Nächte-Sondertermin anfragen</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.princessfarida.com/suites/" target="_blank" rel="noopener">Royal Suites & Fotos ansehen ↗</a>
+            <a class="secondary" href="https://www.princessfarida.com/" target="_blank" rel="noopener">Startseite Princess Farida ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Turquoise Dahabiya -->
+      <div class="option-item" data-group="cruise">
+        <label class="option-main">
+          <input type="radio" name="cruise" value="6600" data-label="Turquoise Dahabiya – Premium Suite (3 Personen)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Turquoise Dahabiya – Premium Suite (3er-Belegung)</span>
+              <span class="option-price">ca. 6.600 € gesamt</span>
+            </div>
+            <div class="option-desc">22,5 m² Suite für bis zu 4 Gäste, kleines Sonnendeck mit Plunge-Pool, sehr flexible Terminplanung.</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-turquoise')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://turquoisedahabiya.com/room/suites/" target="_blank" rel="noopener">🌐 Offizielle Suiten-Seite ↗</a>
+        </div>
+        <div id="drawer-turquoise" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Ausstattung</h4>
+              <ul>
+                <li>3 Premium Suiten an Bord (jeweils für bis zu 4 Personen)</li>
+                <li>Kleiner Pool/Jacuzzi auf dem Sonnendeck</li>
+                <li>Helles, modernes Interieur mit Panoramafenstern</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Flexibilität</h4>
+              <ul>
+                <li>Spezialisiert auf individuelle Reisedaten (ideal für 31.12.–05.01.)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://turquoisedahabiya.com/room/suites/" target="_blank" rel="noopener">Premium Suite Fotos & Infos ↗</a>
+            <a class="secondary" href="https://turquoisedahabiya.com/" target="_blank" rel="noopener">Turquoise Dahabiya Startseite ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. HURGHADA HOTELS -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🌴 4. Hurghada Adults-Only Hotel (3 Nächte • 1 DZ + 1 EZ)</h2>
+      <span class="badge-date">05.01. – 08.01.2027</span>
+    </div>
+    <div class="option-list">
+
+      <!-- Meraki -->
+      <div class="option-item" data-group="hurghada">
+        <label class="option-main">
+          <input type="radio" name="hurghada" value="1050" data-label="Meraki Resort Hurghada (4* Adults Only, Boho-Stil)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Meraki Resort Hurghada (4* Adults Only ab 16 J.) <span class="tag-save">Sparhebel</span></span>
+              <span class="option-price">ca. 1.050 € gesamt</span>
+            </div>
+            <div class="option-desc">Stylisches Boho-Strandresort nur für Erwachsene, großer Strandabschnitt & entspannte Atmosphäre (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-meraki')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://merakiresort.com/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-meraki" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Modernes Boho-Design, weitläufiger Privatstrand</li>
+                <li>Mehrere À-la-carte-Restaurants im All-Inclusive enthalten</li>
+                <li>Nur ca. 15–20 Min. zum Flughafen Hurghada</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Atmosphäre</h4>
+              <ul>
+                <li>Lebendigeres Lifestyle-Konzept mit Chill-out-Lounges</li>
+                <li>Sehr gutes Preis-Leistungs-Verhältnis für 3 Nächte</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://merakiresort.com/" target="_blank" rel="noopener">Meraki Resort Webseite öffnen ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Meraki%20Resort%20Hurghada" target="_blank" rel="noopener">📸 Fotos & Bewertungen ansehen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steigenberger Pure Lifestyle -->
+      <div class="option-item" data-group="hurghada">
+        <label class="option-main">
+          <input type="radio" name="hurghada" value="1750" data-label="Steigenberger Pure Lifestyle (5* Adults Only, All-Suite)" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Steigenberger Pure Lifestyle (5* Adults Only ab 16 J.)</span>
+              <span class="option-price">ca. 1.750 € gesamt</span>
+            </div>
+            <div class="option-desc">Modernes All-Suite-Boutiquehotel in Weißtönen, nur 10 Min. vom Flughafen Hurghada entfernt (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-pure')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://steigenbergeraldauresort.com/en/steigenberger-pure-lifestyle" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-pure" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Ausschließlich stilvolle Suiten (oft mit Jacuzzi)</li>
+                <li>Mitbenutzung des benachbarten Steigenberger ALDAU Beach</li>
+                <li>Top-Service & erstklassige Gastronomie</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage</h4>
+              <ul>
+                <li>Nur ca. 10 Minuten Transfer zum Flughafen am Abreisetag</li>
+                <li>Direkt an der Promenade von Hurghada gelegen</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://steigenbergeraldauresort.com/en/steigenberger-pure-lifestyle" target="_blank" rel="noopener">Steigenberger Pure Webseite ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Steigenberger%20Pure%20Lifestyle%20Hurghada" target="_blank" rel="noopener">📸 Fotos & Bewertungen ansehen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steigenberger Makadi -->
+      <div class="option-item" data-group="hurghada">
+        <label class="option-main">
+          <input type="radio" name="hurghada" value="1650" data-label="Steigenberger Makadi (5* Adults Only, Makadi Bay)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Steigenberger Makadi (5* Adults Only, Makadi Bay)</span>
+              <span class="option-price">ca. 1.650 € gesamt</span>
+            </div>
+            <div class="option-desc">Ruhiges, kleines Boutique-Hotel direkt am Golfplatz & Strandzugang in der Makadi Bay (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-makadi')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.jazhotels.com/hoteldetail/65-egypt-hurghada-madinat-makadi-steigenberger-makadi" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-makadi" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Sehr ruhiges, überschaubares Haus mit nur 93 Zimmern</li>
+                <li>Zugang zum schönen Hausriff zum Schnorcheln in der Bucht</li>
+                <li>Entspannte Boutique-Atmosphäre ohne Trubel</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage</h4>
+              <ul>
+                <li>In der geschützten Bucht Madinat Makadi</li>
+                <li>Transferzeit zum Flughafen ca. 35–40 Minuten</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.jazhotels.com/hoteldetail/65-egypt-hurghada-madinat-makadi-steigenberger-makadi" target="_blank" rel="noopener">Steigenberger Makadi Webseite ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Steigenberger%20Makadi%20Hurghada" target="_blank" rel="noopener">📸 Fotos & Bewertungen ansehen ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Premier Le Reve -->
+      <div class="option-item" data-group="hurghada">
+        <label class="option-main">
+          <input type="radio" name="hurghada" value="1850" data-label="Premier Le Rêve Hotel & Spa (5* Adults Only, Sahl Hasheesh)" onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Premier Le Rêve Hotel & Spa (5* Adults Only, Sahl Hasheesh)</span>
+              <span class="option-price">ca. 1.850 € gesamt</span>
+            </div>
+            <div class="option-desc">Eines der beliebtesten Ruhe- und Spa-Resorts am Roten Meer mit ruhigem Strand (1 DZ + 1 EZ).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <button type="button" class="btn-details" onclick="toggleDrawer('drawer-lereve')">▾ Infos & Highlights ausklappen</button>
+          <a class="ext-link" href="https://www.premierlereve.com/" target="_blank" rel="noopener">🌐 Offizielle Webseite ↗</a>
+        </div>
+        <div id="drawer-lereve" class="details-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-box">
+              <h4>Besonderheiten</h4>
+              <ul>
+                <li>Sehr hoher Service-Standard und exzellentes Spa</li>
+                <li>Mehrere Spezialitätenrestaurants & ruhige Poollandschaft</li>
+                <li>Direkter Steg zum Korallenriff zum Schnorcheln</li>
+              </ul>
+            </div>
+            <div class="drawer-box">
+              <h4>Lage</h4>
+              <ul>
+                <li>Im exklusiven Ferienort Sahl Hasheesh</li>
+                <li>Transferzeit zum Flughafen ca. 30 Minuten</li>
+              </ul>
+            </div>
+          </div>
+          <div class="drawer-links">
+            <a href="https://www.premierlereve.com/" target="_blank" rel="noopener">Premier Le Rêve Webseite ↗</a>
+            <a class="secondary" href="https://www.google.com/travel/hotels?q=Premier%20Le%20Reve%20Hotel%20Spa%20Sahl%20Hasheesh" target="_blank" rel="noopener">📸 Fotos & Bewertungen ansehen ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. TRANSFERS & GUIDE -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🚗 5. Transfers & Ausflüge (Alle 3 Personen)</h2>
+      <span class="badge-date">Komplettpreis</span>
+    </div>
+    <div class="option-list">
+      <div class="option-item">
+        <label class="option-main">
+          <input type="checkbox" class="addon" value="550" data-label="Kairo: 3 Tage privater Minivan, Guide & Eintritte (Pyramiden, GEM, Alt-Kairo)" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Kairo Komplettpaket: Privatfahrer (Minivan), Guide & Eintritte</span>
+              <span class="option-price">ca. 550 € gesamt</span>
+            </div>
+            <div class="option-desc">Flughafentransfers + 2 volle Sightseeing-Tage (Pyramiden, Grand Egyptian Museum, Alt-Kairo) für alle 3 zusammen.</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="option-item">
+        <label class="option-main">
+          <input type="checkbox" class="addon" value="185" data-label="Privattransfer Assuan → Hurghada (Tür-zu-Tür im Minivan)" checked onchange="updateTotal()">
+          <div class="option-content">
+            <div class="option-top">
+              <span class="option-title">Privattransfer Assuan → Hurghada (05.01.2027)</span>
+              <span class="option-price">ca. 185 € gesamt</span>
+            </div>
+            <div class="option-desc">Direkte Abholung an der Dahabiya in Assuan bis vor das Hotel in Hurghada (ca. 6,5–7 Std. im klimatisierten Minivan).</div>
+          </div>
+        </label>
+        <div class="option-actions">
+          <a class="ext-link" href="https://daytrip.com/de/transfers/aswan-eg/hurghada-eg" target="_blank" rel="noopener">🔗 Transfer bei Daytrip ansehen ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sticky-footer">
+  <div class="footer-inner">
+    <div class="price-summary">
+      <span class="total-label">Geschätzte Gesamtsumme (3 Personen)</span>
+      <div>
+        <span class="total-amount" id="total-price">14.785 €</span>
+        <span class="per-person" id="per-person-price">(ca. 4.928 € p. P.)</span>
+      </div>
+    </div>
+    <button type="button" class="copy-btn" onclick="copySummary()">📋 Auswahl kopieren</button>
+  </div>
+</div>
+
+<script>
+  function updateTotal() {
+    let total = 0;
+    document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(el => {
+      total += parseFloat(el.value || 0);
+    });
+    document.querySelectorAll('.option-item').forEach(item => {
+      const inp = item.querySelector('input');
+      if (inp && inp.checked) item.classList.add('selected');
+      else item.classList.remove('selected');
+    });
+    const perPerson = Math.round(total / 3);
+    document.getElementById('total-price').textContent = total.toLocaleString('de-DE') + ' €';
+    document.getElementById('per-person-price').textContent = '(ca. ' + perPerson.toLocaleString('de-DE') + ' € p. P.)';
+  }
+
+  function toggleDrawer(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('open');
+  }
+
+  function toggleItinerary() {
+    document.getElementById('cairo-itinerary').classList.toggle('open');
+  }
+
+  function applyPreset(mode) {
+    const pick = (name, index) => {
+      const radios = document.querySelectorAll('input[name="' + name + '"]');
+      if (radios[index]) radios[index].checked = true;
+    };
+    if (mode === 'budget') {
+      pick('flights', 0);
+      pick('cairo', 0);
+      pick('cruise', 0);
+      pick('hurghada', 0);
+    } else if (mode === 'balanced') {
+      pick('flights', 0);
+      pick('cairo', 1);
+      pick('cruise', 3);
+      pick('hurghada', 2);
+    } else if (mode === 'luxury') {
+      pick('flights', 1);
+      pick('cairo', 5);
+      pick('cruise', 2);
+      pick('hurghada', 3);
+    }
+    updateTotal();
+  }
+
+  function copySummary() {
+    let lines = ['🇪🇬 Ägypten-Reiseauswahl (28.12.2026 – 08.01.2027, 3 Personen):', ''];
+    document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(el => {
+      lines.push('• ' + el.getAttribute('data-label') + ' (~' + parseFloat(el.value).toLocaleString('de-DE') + ' €)');
+    });
+    lines.push('');
+    lines.push('Gesamtsumme: ' + document.getElementById('total-price').textContent + ' ' + document.getElementById('per-person-price').textContent);
+    const text = lines.join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => alert('Auswahl in die Zwischenablage kopiert!'));
+    } else {
+      prompt('Hier kopieren:', text);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', updateTotal);
+</script>
+</body>
+</html>
