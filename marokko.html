@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marokko Reiseplaner 2026/2027 (Ab/Bis Agadir)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --bg: #f6f4f0;
+    --card: #ffffff;
+    --border: #e3dcd2;
+    --text: #1e2421;
+    --muted: #5c635f;
+    --accent: #b85d3b;
+    --accent-soft: #fdf2ee;
+    --green: #1e7e4f;
+    --green-soft: #eaf7f0;
+    --shadow: 0 2px 10px rgba(0,0,0,0.05);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding-bottom: 100px;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  h1 { margin: 0 0 6px; font-size: 1.55rem; letter-spacing: -0.02em; }
+  .subtitle { margin: 0 0 16px; color: var(--muted); font-size: 0.95rem; }
+
+  /* Versteckte Radio-Buttons für 100% CSS-Interaktivität ohne JS-Blockade */
+  input[type="radio"].state-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Tour-Auswahl Tabs */
+  .tour-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .tour-tab-label {
+    display: block;
+    background: #faf8f5;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tour-tab-label:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  #tour1:checked ~ .container .tour-tabs label[for="tour1"],
+  #tour2:checked ~ .container .tour-tabs label[for="tour2"],
+  #tour3:checked ~ .container .tour-tabs label[for="tour3"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 2px 8px rgba(184,93,59,0.12);
+  }
+  .tab-title { font-weight: 700; font-size: 0.98rem; display: block; margin-bottom: 2px; }
+  .tab-sub { font-size: 0.82rem; color: var(--muted); display: block; }
+
+  /* Karten-Container direkt unter der Routenauswahl */
+  .map-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+  }
+  .map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .map-title { font-weight: 700; font-size: 1.05rem; margin: 0; }
+  .gmaps-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+  #osm-map {
+    width: 100%;
+    height: 360px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    z-index: 1;
+    background: #eae6df;
+  }
+  /* Fallback-Vektorkarte falls Offline/Vorschau ohne Internet */
+  .svg-fallback {
+    display: none;
+    width: 100%;
+    background: #f3efe8;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+  }
+  .route-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+    align-items: center;
+    font-size: 0.84rem;
+  }
+  .pill {
+    background: #f4f1ea;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .arrow { color: var(--accent); font-weight: 700; }
+
+  /* Tour-Inhalte umschalten */
+  .tour-content { display: none; }
+  #tour1:checked ~ .container .tour1-content { display: block; }
+  #tour2:checked ~ .container .tour2-content { display: block; }
+  #tour3:checked ~ .container .tour3-content { display: block; }
+
+  /* Kacheln / Bausteine */
+  .stage { margin-bottom: 24px; }
+  .stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+  .stage-title { margin: 0; font-size: 1.15rem; }
+  .stage-meta { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+
+  .option-wrap { margin-bottom: 10px; }
+  .option-card {
+    display: block;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .option-card:hover { border-color: #cbbba8; }
+
+  /* Markierung der ausgewählten Kachel per CSS */
+  input.opt-radio:checked + .option-card {
+    border-color: var(--accent);
+    background: #fffdfb;
+  }
+  .opt-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .check-box {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid #c5bdb0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+    background: #fff;
+    color: transparent;
+  }
+  input.opt-radio:checked + .option-card .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .opt-main { flex: 1; min-width: 0; }
+  .opt-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .opt-name { font-weight: 700; font-size: 1rem; }
+  .opt-price { font-weight: 700; font-size: 1rem; color: var(--accent); white-space: nowrap; }
+  .opt-desc { margin: 0; font-size: 0.9rem; color: var(--muted); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+  .badge-save { background: var(--green-soft); color: var(--green); }
+  .badge-lux { background: #f5efe2; color: #8a641b; }
+
+  /* Details-Akkordeon (nativ ohne JS) */
+  details.hotel-details {
+    margin-top: 8px;
+    padding-left: 34px;
+  }
+  details.hotel-details summary {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.86rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  details.hotel-details summary::-webkit-details-marker { display: none; }
+  .details-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .details-body h4 { margin: 0 0 4px; color: var(--text); font-size: 0.88rem; }
+  .details-body ul { margin: 0; padding-left: 18px; }
+  .ext-link {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #cbbba8;
+  }
+
+  /* Fixe Fußleiste für Gesamtkosten */
+  .sticky-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #1e2421;
+    color: #fff;
+    padding: 12px 16px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.16);
+    z-index: 999;
+  }
+  .sticky-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .total-label { font-size: 0.8rem; color: #c8c4bc; }
+  .total-value { font-size: 1.2rem; font-weight: 700; }
+  .hint-pill {
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.12);
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: #eee;
+  }
+</style>
+</head>
+<body>
+
+<input type="radio" name="tourSelect" id="tour1" class="state-radio" checked>
+<input type="radio" name="tourSelect" id="tour2" class="state-radio">
+<input type="radio" name="tourSelect" id="tour3" class="state-radio">
+
+<div class="container">
+  <header>
+    <h1>🇲🇦 Marokko Reiseplaner (27.12.2026 – 07.01.2027)</h1>
+    <p class="subtitle">11 Nächte • 3 Personen • Condor Nonstop ab/bis München (MUC ↔ Agadir AGA)</p>
+
+    <div class="tour-tabs">
+      <label for="tour1" class="tour-tab-label" onclick="renderMap(1)">
+        <span class="tab-title">🏜 Tour 1: Der Süd-Klassiker</span>
+        <span class="tab-sub">Agadir → Ouarzazate → Merzouga (Sahara) → Marrakesch → Essaouira</span>
+      </label>
+      <label for="tour2" class="tour-tab-label" onclick="renderMap(2)">
+        <span class="tab-title">✨ Tour 2: Luxus & Genuss (Kurze Etappen)</span>
+        <span class="tab-sub">Agadir → Marrakesch → Agafay-Wüste → Hoher Atlas → Essaouira</span>
+      </label>
+      <label for="tour3" class="tour-tab-label" onclick="renderMap(3)">
+        <span class="tab-title">🌴 Tour 3: Oasen & Anti-Atlas Explorer</span>
+        <span class="tab-sub">Agadir → Taroudant → Zagora (Erg Chigaga) → Skoura → Marrakesch</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="map-card">
+    <div class="map-header">
+      <h2 class="map-title" id="map-heading">🗺 Routenverlauf: Tour 1 – Der Süd-Klassiker (ca. 1.540 km gesamt)</h2>
+      <a id="gmaps-route-link" class="gmaps-btn" href="https://www.google.com/maps/dir/Flughafen+Agadir,+Agadir,+Marokko/Ouarzazate,+Marokko/Merzouga,+Marokko/Boumalne+Dades,+Marokko/Marrakech,+Marokko/Essaouira,+Marokko/Flughafen+Agadir,+Agadir,+Marokko" target="_blank">📍 Route in Google Maps öffnen ↗</a>
+    </div>
+    <div id="osm-map"></div>
+    <div id="svg-fallback" class="svg-fallback"></div>
+    <div class="route-pills" id="route-pills">
+      <span class="pill">1. Agadir (27.12.)</span><span class="arrow">→</span>
+      <span class="pill">2. Ouarzazate (28.12.)</span><span class="arrow">→</span>
+      <span class="pill">3. Sahara Merzouga (29.–31.12.)</span><span class="arrow">→</span>
+      <span class="pill">4. Dadès (31.12.–01.01.)</span><span class="arrow">→</span>
+      <span class="pill">5. Marrakesch (01.–04.01.)</span><span class="arrow">→</span>
+      <span class="pill">6. Essaouira (04.–07.01.)</span><span class="arrow">→</span>
+      <span class="pill">7. Abflug AGA (07.01.)</span>
+    </div>
+  </div>
+
+  <section class="stage">
+    <div class="stage-header">
+      <h2 class="stage-title">✈ 1. Nonstop-Flug: München (MUC) ↔ Agadir (AGA)</h2>
+      <span class="stage-meta">Condor DE 512 / DE 513 • 3 Personen inkl. Aufgabegepäck</span>
+    </div>
+
+    <div class="option-wrap">
+      <input type="radio" name="flight" id="fl1" class="state-radio opt-radio" data-price="1620" checked onchange="recalc()">
+      <label for="fl1" class="option-card">
+        <div class="opt-top">
+          <div class="check-box">✓</div>
+          <div class="opt-main">
+            <div class="opt-title-row">
+              <span class="opt-name">Condor Economy Classic Nonstop (So 27.12. – Do 07.01.) <span class="badge badge-save">Top-Preis</span></span>
+              <span class="opt-price">ca. 1.620 € gesamt</span>
+            </div>
+            <p class="opt-desc"><strong>Hinflug DE 512:</strong> So, 27.12.2026 (12:25 – 15:35 Uhr) • <strong>Rückflug DE 513:</strong> Do, 07.01.2027 (nachmittags, ca. 4 Std. 10 Min.) • ca. 540 € p. P.</p>
+          </div>
+        </div>
+        <details class="hotel-details">
+          <summary>▾ Flugdetails & Buchungslinks anzeigen</summary>
+          <div class="details-body">
+            <ul>
+              <li>Direktflug ohne Umstieg ab München Terminal 1</li>
+              <li>Inklusive 20 kg Aufgabegepäck + Handgepäck pro Person (Economy Classic)</li>
+            </ul>
+            <a class="ext-link" href="https://www.condor.com/de" target="_blank">🌐 Direkt bei Condor prüfen ↗</a> &nbsp;|&nbsp;
+            <a class="ext-link" href="https://www.google.com/travel/flights?q=Flights%20to%20AGA%20from%20MUC%20on%202026-12-27%20through%202027-01-07%20nonstop" target="_blank">🔗 Bei Google Flüge vergleichen ↗</a>
+          </div>
+        </details>
+      </label>
+    </div>
+
+    <div class="option-wrap">
+      <input type="radio" name="flight" id="fl2" class="state-radio opt-radio" data-price="2790" onchange="recalc()">
+      <label for="fl2" class="option-card">
+        <div class="opt-top">
+          <div class="check-box">✓</div>
+          <div class="opt-main">
+            <div class="opt-title-row">
+              <span class="opt-name">Condor Business Class Nonstop (So 27.12. – Do 07.01.) <span class="badge badge-lux">Komfort</span></span>
+              <span class="opt-price">ca. 2.790 € gesamt</span>
+            </div>
+            <p class="opt-desc">Freier Mittelsitz, Lounge-Zugang in München, Priority Check-in, 30 kg Gepäck & Gourmet-Menü an Bord (ca. 930 € p. P.).</p>
+          </div>
+        </div>
+      </label>
+    </div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-header">
+      <h2 class="stage-title">🚙 2. Mietwagen (11 Tage ab/bis Flughafen Agadir AGA)</h2>
+      <span class="stage-meta">27.12.2026 (16:00 Uhr) – 07.01.2027 (13:00 Uhr) • 3 Personen + 3 Koffer</span>
+    </div>
+
+    <div class="option-wrap">
+      <input type="radio" name="car" id="car1" class="state-radio opt-radio" data-price="440" onchange="recalc()">
+      <label for="car1" class="option-card">
+        <div class="opt-top">
+          <div class="check-box">✓</div>
+          <div class="opt-main">
+            <div class="opt-title-row">
+              <span class="opt-name">Hochdachkombi / Kombi (z. B. Dacia Jogger / Renault Kangoo) <span class="badge badge-save">Sparhebel</span></span>
+              <span class="opt-price">ca. 440 € gesamt</span>
+            </div>
+            <p class="opt-desc">Viel Platz für 3 große Koffer, inkl. Vollkasko ohne Selbstbeteiligung, Glas-/Reifenschutz & unbegrenzten Kilometern.</p>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="option-wrap">
+      <input type="radio" name="car" id="car2" class="state-radio opt-radio" data-price="590" checked onchange="recalc()">
+      <label for="car2" class="option-card">
+        <div class="opt-top">
+          <div class="check-box">✓</div>
+          <div class="opt-main">
+            <div class="opt-title-row">
+              <span class="opt-name">Mittelklasse-SUV (z. B. Dacia Duster / Hyundai Tucson) inkl. Vollkasko</span>
+              <span class="opt-price">ca. 590 € gesamt</span>
+            </div>
+            <p class="opt-desc">Optimal für die Pässe im Hohen Atlas und die Zufahrt zur Wüste, inkl. Vollkasko ohne Selbstbeteiligung.</p>
+          </div>
+        </div>
+        <details class="hotel-details">
+          <summary>▾ Mietwagen-Links & Hinweise</summary>
+          <div class="details-body">
+            <ul>
+              <li>Übernahme direkt am Terminal Agadir Al Massira (AGA)</li>
+              <li>Tipp: Kreditkarte auf den Hauptfahrer (kein Debit) bereithalten</li>
+            </ul>
+            <a class="ext-link" href="https://www.sunnycars.de/" target="_blank">🔗 Sunny Cars (Alles-inklusive) ↗</a> &nbsp;|&nbsp;
+            <a class="ext-link" href="https://www.sixt.de/" target="_blank">🌐 SIXT Agadir Flughafen ↗</a>
+          </div>
+        </details>
+      </label>
+    </div>
+  </section>
+
+  <!-- ==================== INHALT TOUR 1 ==================== -->
+  <div class="tour-content tour1-content">
+    <section class="stage">
+      <div class="stage-header">
+        <h2 class="stage-title">🏨 3. Hotels & Wüstencamps – Tour 1 (11 Nächte • 1 DZ + 1 EZ)</h2>
+        <span class="stage-meta">Agadir (1 N.) • Ouarzazate (1 N.) • Sahara Merzouga (2 N.) • Dadès (1 N.) • Marrakesch (3 N.) • Essaouira (3 N.)</span>
+      </div>
+
+      <div class="option-wrap">
+        <input type="radio" name="t1hotel" id="t1h1" class="state-radio opt-radio" data-price="2850" onchange="recalc()">
+        <label for="t1h1" class="option-card">
+          <div class="opt-top">
+            <div class="check-box">✓</div>
+            <div class="opt-main">
+              <div class="opt-title-row">
+                <span class="opt-name">Paket A: Charmante Riads & 4★ Boutique-Hotels <span class="badge badge-save">Spar-Mix</span></span>
+                <span class="opt-price">ca. 2.850 € gesamt</span>
+              </div>
+              <p class="opt-desc">11 Nächte für 3 Personen (1 DZ + 1 EZ bzw. 2 Glamping-Zelte) inkl. Frühstück (in Wüste & Dadès inkl. Halbpension).</p>
+            </div>
+          </div>
+          <details class="hotel-details">
+            <summary>▾ Alle 6 Stationen & Hotels von Paket A ansehen</summary>
+            <div class="details-body">
+              <ul>
+                <li><strong>27.–28.12. Agadir (1 N.):</strong> Riad Villa Blanche (Boutique-Hotel nahe Strand)</li>
+                <li><strong>28.–29.12. Ouarzazate (1 N.):</strong> Ksar Ighnda / Karam Palace 4★</li>
+                <li><strong>29.–31.12. Sahara Merzouga (2 N.):</strong> Dunes Luxury Camp (2 Zelte inkl. HP & 4x4-Transfer)</li>
+                <li><strong>31.12.–01.01. Dadès-Schlucht (1 N. Silvester):</strong> Hotel Xaluca Dades 4★ inkl. Silvester-Dinner</li>
+                <li><strong>01.–04.01. Marrakesch (3 N.):</strong> Riad Palais Sebban (Medina-Palast mit beheiztem Pool)</li>
+                <li><strong>04.–07.01. Essaouira (3 N.):</strong> Riad Zahra (nahe Strand & Hafen)</li>
+              </ul>
+            </div>
+          </details>
+        </label>
+      </div>
+
+      <div class="option-wrap">
+        <input type="radio" name="t1hotel" id="t1h2" class="state-radio opt-radio" data-price="4490" checked onchange="recalc()">
+        <label for="t1h2" class="option-card">
+          <div class="opt-top">
+            <div class="check-box">✓</div>
+            <div class="opt-main">
+              <div class="opt-title-row">
+                <span class="opt-name">Paket B: 5★ Boutique-Hotels, Kasbahs & Luxury Camp <span class="badge badge-lux">Empfehlung</span></span>
+                <span class="opt-price">ca. 4.490 € gesamt</span>
+              </div>
+              <p class="opt-desc">Handverlesene 4★+ und 5★ Häuser mit beheizten Pools, Parkplätzen & erstklassiger Küche (1 DZ + 1 EZ für 3 Personen).</p>
+            </div>
+          </div>
+          <details class="hotel-details">
+            <summary>▾ Alle 6 Stationen & Hotels von Paket B ansehen</summary>
+            <div class="details-body">
+              <ul>
+                <li><strong>27.–28.12. Agadir (1 N.):</strong> Sofitel Agadir Thalassa Sea & Spa 5★</li>
+                <li><strong>28.–29.12. Ouarzazate (1 N.):</strong> Le Berbère Palace 5★</li>
+                <li><strong>29.–31.12. Sahara Merzouga (2 N.):</strong> <a class="ext-link" href="https://www.saharamajesticluxurycamp.com/" target="_blank">Sahara Majestic Luxury Camp ↗</a> (2 Luxuszelte inkl. HP)</li>
+                <li><strong>31.12.–01.01. Dadès-Schlucht (1 N. Silvester):</strong> Eden Boutique Hotel (Panoramablick & Gourmet-Küche)</li>
+                <li><strong>01.–04.01. Marrakesch (3 N.):</strong> <a class="ext-link" href="https://www.lesjardinsdelakoutoubia.com/" target="_blank">Les Jardins de la Koutoubia 5★ ↗</a> (direkt an der Medina)</li>
+                <li><strong>04.–07.01. Essaouira (3 N.):</strong> <a class="ext-link" href="https://www.heure-bleue.com/" target="_blank">Heure Bleue Palais ↗</a> (Relais & Châteaux mit beheiztem Dachpool)</li>
+              </ul>
+            </div>
+          </details>
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== INHALT TOUR 2 ==================== -->
+  <div class="tour-content tour2-content">
+    <section class="stage">
+      <div class="stage-header">
+        <h2 class="stage-title">🏨 3. Hotels & Wüstencamps – Tour 2 (11 Nächte • Kurze Fahrzeiten)</h2>
+        <span class="stage-meta">Agadir (1 N.) • Marrakesch (4 N. Silvester) • Agafay-Wüste (2 N.) • Hoher Atlas (2 N.) • Essaouira (2 N.)</span>
+      </div>
+
+      <div class="option-wrap">
+        <input type="radio" name="t2hotel" id="t2h1" class="state-radio opt-radio" data-price="4650" checked onchange="recalc()">
+        <label for="t2h1" class="option-card">
+          <div class="opt-top">
+            <div class="check-box">✓</div>
+            <div class="opt-main">
+              <div class="opt-title-row">
+                <span class="opt-name">Entschleunigte 5★ Genuss-Kombination (1 DZ + 1 EZ)</span>
+                <span class="opt-price">ca. 4.650 € gesamt</span>
+              </div>
+              <p class="opt-desc">Maximal 2,5 Stunden Fahrzeit pro Etappe – ideal zum Erholen mit Wüsten-Glamping in Agafay, Atlas-Bergluft und Atlantik.</p>
+            </div>
+          </div>
+          <details class="hotel-details" open>
+            <summary>▾ Alle 5 Stationen von Tour 2 ansehen</summary>
+            <div class="details-body">
+              <ul>
+                <li><strong>27.–28.12. Agadir (1 N.):</strong> Sofitel Agadir Royal Bay Resort 5★</li>
+                <li><strong>28.12.–01.01. Marrakesch (4 N. Silvester):</strong> Les Jardins de la Koutoubia 5★ oder La Sultana</li>
+                <li><strong>01.–03.01. Agafay-Wüste (2 N.):</strong> Inara Camp / Scarabeo Camp (2 Luxuszelte inkl. HP, nur 45 Min. ab Marrakesch)</li>
+                <li><strong>03.–05.01. Hoher Atlas / Imlil (2 N.):</strong> Kasbah Angour / Kasbah Tamadot</li>
+                <li><strong>05.–07.01. Essaouira (2 N.):</strong> Heure Bleue Palais (danach 2,5 Std. Küstenstraße direkt zum Abflug nach Agadir)</li>
+              </ul>
+            </div>
+          </details>
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== INHALT TOUR 3 ==================== -->
+  <div class="tour-content tour3-content">
+    <section class="stage">
+      <div class="stage-header">
+        <h2 class="stage-title">🏨 3. Hotels & Oasen-Lodges – Tour 3 (11 Nächte • Süd-Explorer)</h2>
+        <span class="stage-meta">Taroudant (2 N.) • Zagora / Erg Chigaga (2 N.) • Skoura Palmenoase (2 N.) • Marrakesch (3 N.) • Agadir (2 N.)</span>
+      </div>
+
+      <div class="option-wrap">
+        <input type="radio" name="t3hotel" id="t3h1" class="state-radio opt-radio" data-price="3980" checked onchange="recalc()">
+        <label for="t3h1" class="option-card">
+          <div class="opt-top">
+            <div class="check-box">✓</div>
+            <div class="opt-main">
+              <div class="opt-title-row">
+                <span class="opt-name">Süd-Marokko Oasen & Kasbah-Route (4★+ / 5★ • 1 DZ + 1 EZ)</span>
+                <span class="opt-price">ca. 3.980 € gesamt</span>
+              </div>
+              <p class="opt-desc">Authentische Südroute durch das Anti-Atlas-Gebirge, das Draa-Tal und die Palmenhaine von Skoura.</p>
+            </div>
+          </div>
+          <details class="hotel-details" open>
+            <summary>▾ Alle 5 Stationen von Tour 3 ansehen</summary>
+            <div class="details-body">
+              <ul>
+                <li><strong>27.–29.12. Taroudant (2 N.):</strong> Dar Zitoune / La Gazelle d'Or (nur 1 Std. ab Flughafen Agadir)</li>
+                <li><strong>29.–31.12. Zagora / Draa-Tal (2 N.):</strong> Azalai Desert Lodge (inkl. HP)</li>
+                <li><strong>31.12.–02.01. Palmenoase Skoura (2 N. Silvester):</strong> Les Jardins de Skoura / Ksar Ben Youssef</li>
+                <li><strong>02.–05.01. Marrakesch (3 N.):</strong> Les Jardins de la Koutoubia 5★</li>
+                <li><strong>05.–07.01. Agadir / Taghazout (2 N.):</strong> Hyatt Place Taghazout Bay (entspannter Abschluss am Meer)</li>
+              </ul>
+            </div>
+          </details>
+        </label>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="sticky-bar">
+  <div class="sticky-inner">
+    <div>
+      <div class="total-label">Geschätzte Gesamtsumme (3 Personen • Condor Nonstop, Mietwagen & 11 Nächte)</div>
+      <div class="total-value" id="totalDisplay">6.700 € (ca. 2.233 € p. P.)</div>
+    </div>
+    <div class="hint-pill">💡 Alle Kacheln & Details sind direkt anklickbar</div>
+  </div>
+</div>
+
+<script>
+  const tours = {
+    1: {
+      title: "🗺 Routenverlauf: Tour 1 – Der Süd-Klassiker (ca. 1.540 km gesamt)",
+      gmaps: "https://www.google.com/maps/dir/Flughafen+Agadir,+Agadir,+Marokko/Ouarzazate,+Marokko/Merzouga,+Marokko/Boumalne+Dades,+Marokko/Marrakech,+Marokko/Essaouira,+Marokko/Flughafen+Agadir,+Agadir,+Marokko",
+      pills: ["1. Agadir (27.12.)", "2. Ouarzazate (28.12.)", "3. Sahara Merzouga (29.–31.12.)", "4. Dadès (31.12.–01.01.)", "5. Marrakesch (01.–04.01.)", "6. Essaouira (04.–07.01.)", "7. Abflug AGA (07.01.)"],
+      coords: [
+        [30.3250, -9.4131, "1. Flughafen Agadir (AGA)"],
+        [30.9335, -6.9370, "2. Ouarzazate"],
+        [31.0802, -4.0134, "3. Sahara Merzouga (Erg Chebbi)"],
+        [31.3752, -5.9936, "4. Dadès-Schlucht"],
+        [31.6295, -7.9811, "5. Marrakesch"],
+        [31.5085, -9.7595, "6. Essaouira"],
+        [30.3250, -9.4131, "7. Rückflug Agadir (AGA)"]
+      ]
+    },
+    2: {
+      title: "🗺 Routenverlauf: Tour 2 – Luxus & Genuss (ca. 720 km • kurze Etappen)",
+      gmaps: "https://www.google.com/maps/dir/Flughafen+Agadir,+Agadir,+Marokko/Marrakech,+Marokko/Agafay,+Marokko/Imlil,+Marokko/Essaouira,+Marokko/Flughafen+Agadir,+Agadir,+Marokko",
+      pills: ["1. Agadir (27.12.)", "2. Marrakesch (28.12.–01.01.)", "3. Agafay-Wüste (01.–03.01.)", "4. Hoher Atlas Imlil (03.–05.01.)", "5. Essaouira (05.–07.01.)", "6. Abflug AGA (07.01.)"],
+      coords: [
+        [30.3250, -9.4131, "1. Flughafen Agadir (AGA)"],
+        [31.6295, -7.9811, "2. Marrakesch"],
+        [31.4833, -8.2500, "3. Agafay-Wüste"],
+        [31.1367, -7.9194, "4. Hoher Atlas (Imlil / Ouirgane)"],
+        [31.5085, -9.7595, "5. Essaouira"],
+        [30.3250, -9.4131, "6. Rückflug Agadir (AGA)"]
+      ]
+    },
+    3: {
+      title: "🗺 Routenverlauf: Tour 3 – Oasen & Anti-Atlas Explorer (ca. 1.290 km)",
+      gmaps: "https://www.google.com/maps/dir/Flughafen+Agadir,+Agadir,+Marokko/Taroudant,+Marokko/Zagora,+Marokko/Skoura,+Marokko/Marrakech,+Marokko/Taghazout,+Marokko/Flughafen+Agadir,+Agadir,+Marokko",
+      pills: ["1. Agadir (27.12.)", "2. Taroudant (27.–29.12.)", "3. Zagora Draa-Tal (29.–31.12.)", "4. Skoura Oase (31.12.–02.01.)", "5. Marrakesch (02.–05.01.)", "6. Taghazout / AGA (05.–07.01.)"],
+      coords: [
+        [30.3250, -9.4131, "1. Flughafen Agadir (AGA)"],
+        [30.4703, -8.8770, "2. Taroudant"],
+        [30.3324, -5.8384, "3. Zagora (Draa-Tal)"],
+        [31.0617, -6.5567, "4. Palmenoase Skoura"],
+        [31.6295, -7.9811, "5. Marrakesch"],
+        [30.5453, -9.7089, "6. Taghazout / Agadir"],
+        [30.3250, -9.4131, "7. Rückflug Agadir (AGA)"]
+      ]
+    }
+  };
+
+  let map = null;
+  let routeLayer = null;
+  let markerGroup = null;
+
+  function initMap() {
+    if (typeof L === 'undefined') {
+      document.getElementById('osm-map').style.display = 'none';
+      document.getElementById('svg-fallback').style.display = 'block';
+      document.getElementById('svg-fallback').innerHTML = '<p style="margin:6px;font-size:0.9rem;">Hinweis: Die interaktive OpenStreetMap-Karte benötigt eine aktive Internetverbindung. Nutze alternativ den Button <strong>„Route in Google Maps öffnen“</strong> oben rechts.</p>';
+      return;
+    }
+    map = L.map('osm-map').setView([31.0, -7.2], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap-Mitwirkende'
+    }).addTo(map);
+    markerGroup = L.layerGroup().addTo(map);
+    renderMap(1);
+  }
+
+  async function renderMap(tourId) {
+    const t = tours[tourId];
+    document.getElementById('map-heading').textContent = t.title;
+    document.getElementById('gmaps-route-link').href = t.gmaps;
+    document.getElementById('route-pills').innerHTML = t.pills.map(p => `<span class="pill">${p}</span>`).join('<span class="arrow">→</span>');
+
+    setTimeout(recalc, 30);
+
+    if (!map) return;
+    setTimeout(() => map.invalidateSize(), 50);
+
+    markerGroup.clearLayers();
+    if (routeLayer) {
+      map.removeLayer(routeLayer);
+      routeLayer = null;
+    }
+
+    const latlngs = [];
+    t.coords.forEach((pt, idx) => {
+      latlngs.push([pt[0], pt[1]]);
+      if (idx < t.coords.length - 1) {
+        L.marker([pt[0], pt[1]]).addTo(markerGroup).bindPopup(`<strong>${pt[2]}</strong>`);
+      }
+    });
+
+    // Direkte Verbindungslinie als sofortige Vorschau
+    routeLayer = L.polyline(latlngs, { color: '#b85d3b', weight: 4, opacity: 0.7, dashArray: '6, 8' }).addTo(map);
+    map.fitBounds(routeLayer.getBounds(), { padding: [28, 28] });
+
+    // Echte Straßenführung über OSRM laden
+    try {
+      const coordStr = t.coords.map(c => `${c[1]},${c[0]}`).join(';');
+      const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`);
+      const data = await res.json();
+      if (data.routes && data.routes[0]) {
+        if (routeLayer) map.removeLayer(routeLayer);
+        routeLayer = L.geoJSON(data.routes[0].geometry, {
+          style: { color: '#b85d3b', weight: 4, opacity: 0.9 }
+        }).addTo(map);
+      }
+    } catch (e) {
+      // Fallback bleibt auf der gestrichelten Linie
+    }
+  }
+
+  function recalc() {
+    let total = 0;
+    const fl = document.querySelector('input[name="flight"]:checked');
+    const car = document.querySelector('input[name="car"]:checked');
+    if (fl) total += parseInt(fl.dataset.price || '0', 10);
+    if (car) total += parseInt(car.dataset.price || '0', 10);
+
+    if (document.getElementById('tour1').checked) {
+      const h = document.querySelector('input[name="t1hotel"]:checked');
+      if (h) total += parseInt(h.dataset.price || '0', 10);
+    } else if (document.getElementById('tour2').checked) {
+      const h = document.querySelector('input[name="t2hotel"]:checked');
+      if (h) total += parseInt(h.dataset.price || '0', 10);
+    } else if (document.getElementById('tour3').checked) {
+      const h = document.querySelector('input[name="t3hotel"]:checked');
+      if (h) total += parseInt(h.dataset.price || '0', 10);
+    }
+
+    const pp = Math.round(total / 3);
+    document.getElementById('totalDisplay').textContent =
+      `${total.toLocaleString('de-DE')} € (ca. ${pp.toLocaleString('de-DE')} € p. P.)`;
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    recalc();
+  });
+</script>
+</body>
+</html>
