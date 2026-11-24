@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azoren Reiseplaner 2026/2027 – Komplette Übersicht (3 Personen)</title>
+<style>
+  :root {
+    --primary: #0f4c5c;
+    --primary-light: #1b6b80;
+    --accent: #e36414;
+    --bg: #f4f7f8;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --success: #15803d;
+    --warning: #b45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); line-height: 1.55; padding-bottom: 110px; }
+  
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #092c36 0%, var(--primary) 60%, var(--primary-light) 100%);
+    color: white;
+    padding: 36px 20px 28px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  header h1 { font-size: 1.9rem; margin-bottom: 8px; letter-spacing: -0.02em; }
+  header p { font-size: 1rem; opacity: 0.9; max-width: 760px; margin: 0 auto 16px; }
+  .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .badge { background: rgba(255,255,255,0.16); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.25); }
+
+  /* Container & Navigation Tabs */
+  .container { max-width: 1140px; margin: 24px auto; padding: 0 16px; }
+  .nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; background: var(--card); padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .tab-btn {
+    flex: 1 1 150px;
+    padding: 12px 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tab-btn:hover { background: #f1f5f9; color: var(--primary); }
+  .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 6px rgba(15,76,92,0.3); }
+
+  .tab-content { display: none; animation: fadeIn 0.25s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards & Grids */
+  .section-title { font-size: 1.35rem; color: var(--primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+  .card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 8px; }
+  .card-tag { display: inline-block; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px; background: #e0f2fe; color: #0369a1; }
+  .card-tag.airbnb { background: #ffe4e6; color: #be123c; }
+  .card-tag.warn { background: #fef3c7; color: #b45309; }
+
+  /* Interactive Selectable Cards */
+  .selectable-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .selectable-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .selectable-card.selected { border-color: var(--accent); background: #fffaf5; box-shadow: 0 4px 12px rgba(227,100,20,0.12); }
+  .selectable-card .check-indicator {
+    position: absolute; top: 16px; right: 16px;
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center;
+    font-weight: bold; color: white; font-size: 0.85rem;
+  }
+  .selectable-card.selected .check-indicator { background: var(--accent); border-color: var(--accent); }
+  .price-highlight { font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-top: 10px; }
+
+  /* Map Container */
+  .map-wrapper { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 24px; }
+  .map-controls { padding: 14px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .map-btn { padding: 7px 13px; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .map-btn:hover, .map-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  iframe.osm-frame { width: 100%; height: 420px; border: none; display: block; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; color: var(--primary); font-weight: 600; }
+
+  /* Buttons & Links */
+  .btn-link {
+    display: inline-block; margin-top: 10px; padding: 8px 14px;
+    background: var(--primary); color: white; text-decoration: none;
+    border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer;
+  }
+  .btn-link:hover { background: var(--primary-light); }
+  .btn-outline {
+    display: inline-block; margin-top: 10px; padding: 7px 13px;
+    background: white; color: var(--primary); text-decoration: none;
+    border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: 1px solid var(--primary); cursor: pointer;
+  }
+
+  /* Weather Bars */
+  .weather-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .weather-stat:last-child { border-bottom: none; }
+
+  /* Modal for Preview */
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.65); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-backdrop.open { display: flex; }
+  .modal-box { background: white; max-width: 680px; width: 100%; border-radius: 14px; padding: 24px; max-height: 90vh; overflow-y: auto; position: relative; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; }
+
+  /* Sticky Cost Bar */
+  .cost-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #0f172a; color: white;
+    padding: 14px 20px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
+    z-index: 900;
+  }
+  .cost-bar-inner { max-width: 1140px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+  .cost-items { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: #cbd5e1; }
+  .cost-items span strong { color: white; }
+  .cost-total { text-align: right; }
+  .cost-total .big-price { font-size: 1.35rem; font-weight: 800; color: #fb923c; }
+  .cost-total .per-person { font-size: 0.82rem; color: #94a3b8; }
+
+  /* Checklist */
+  .checklist label { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
+  .checklist input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌋 Azoren Reiseplaner – Silvester & Neujahr</h1>
+  <p>Gesamthafte Planung für <strong>3 Personen</strong> (1 Einzelzimmer + 1 Doppelzimmer bzw. 2-Schlafzimmer-Airbnb) • Schwerpunkte: Sightseeing, Wandern & Kulinarik</p>
+  <div class="badges">
+    <span class="badge">✈️ Mo., 28. Dez. – Do., 07. Jan. (10 Nächte)</span>
+    <span class="badge">🛫 München (MUC) ↔ Ponta Delgada (PDL)</span>
+    <span class="badge">🥾 Wandern, Vulkan-Kulinarik & Inselhopping</span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Navigation -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="openTab('tab-flights')">1. Flüge & Route</button>
+    <button class="tab-btn" onclick="openTab('tab-stays')">2. Hotels & Airbnb (Top-Hosts)</button>
+    <button class="tab-btn" onclick="openTab('tab-itinerary')">3. Tagesplan & Wanderungen</button>
+    <button class="tab-btn" onclick="openTab('tab-weather')">4. Wetter, Gesundheit & Hinweise</button>
+    <button class="tab-btn" onclick="openTab('tab-budget')">5. Gesamtkosten & Packliste</button>
+  </div>
+
+  <!-- TAB 1: FLÜGE & ROUTE -->
+  <div id="tab-flights" class="tab-content active">
+    <h2 class="section-title">✈️ 1. Flugdaten & Zubringer (3 Personen)</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag">Langstrecke • Gebuchte/Geplante Verbindung</span>
+        <h3>München (MUC) ↔ Ponta Delgada (PDL)</h3>
+        <table>
+          <tr><th>Strecke</th><th>Datum</th><th>Details</th></tr>
+          <tr><td><strong>Hinflug</strong></td><td>Mo., 28. Dez.</td><td>MUC → PDL (via Lissabon/Porto mit TAP Air Portugal oder SATA Azores Airlines)</td></tr>
+          <tr><td><strong>Rückflug</strong></td><td>Do., 07. Jan.</td><td>PDL → MUC (10 Nächte Aufenthalt auf den Azoren)</td></tr>
+          <tr><td><strong>Gepäck</strong></td><td>3 Personen</td><td>Empfehlung: Tarif inkl. 23 kg Aufgabegepäck für Wanderschuhe & Regenkleidung</td></tr>
+        </table>
+        <div style="margin-top: 14px;">
+          <label style="font-size:0.88rem; font-weight:600; display:block; margin-bottom:6px;">Flugkosten-Tarif für Kalkulator wählen (gesamt für 3 Pers.):</label>
+          <select id="flight-select" onchange="updateBudget()" style="width:100%; padding:9px; border-radius:6px; border:1px solid var(--border); font-size:0.92rem;">
+            <option value="1260">Spar-Tarif mit Handgepäck (ca. 420 € p.P. = 1.260 € gesamt)</option>
+            <option value="1560" selected>Standard-Tarif inkl. 23 kg Aufgabegepäck (ca. 520 € p.P. = 1.560 € gesamt)</option>
+            <option value="1890">Flex-Tarif / Kurzfristbuchung Weihnachten (ca. 630 € p.P. = 1.890 € gesamt)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">Routen-Strategie wählen</span>
+        <h3>Inselhopping vs. Intensiv São Miguel</h3>
+        <p style="font-size:0.9rem; color:var(--muted); margin-bottom:12px;">Klicke deine bevorzugte Route an – Inlandsflüge, Fähren und Mietwagen passen sich im Kostenrechner automatisch an:</p>
+        
+        <div class="selectable-card selected" id="route-hopping" onclick="selectRoute('hopping')" style="margin-bottom:10px; padding:12px;">
+          <div class="check-indicator">✓</div>
+          <strong>Option A: Inselhopping (São Miguel + Pico + Faial)</strong>
+          <p style="font-size:0.85rem; color:var(--muted);">6 Nächte São Miguel + 4 Nächte Pico (inkl. Tagesausflug Faial per Fähre). Inkl. SATA-Inlandsflug & Atlânticoline-Fähre.</p>
+          <div style="font-size:0.88rem; font-weight:700; color:var(--primary); margin-top:4px;">+ 390 € Zusatzkosten (Inlandsflug PDL↔PIX + Fähre für 3 Pers.)</div>
+        </div>
+
+        <div class="selectable-card" id="route-single" onclick="selectRoute('single')" style="padding:12px;">
+          <div class="check-indicator">✓</div>
+          <strong>Option B: 10 Nächte Fokus auf São Miguel</strong>
+          <p style="font-size:0.85rem; color:var(--muted);">Kein Kofferpacken zwischendurch. Aufteilung in West/Mitte (Ponta Delgada) und Ost/Thermalquellen (Furnas).</p>
+          <div style="font-size:0.88rem; font-weight:700; color:var(--success); margin-top:4px;">+ 0 € Zusatzkosten (keine Inlandsflüge/Fähren nötig)</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ Interaktive OpenStreetMap-Routenkarte</h2>
+    <div class="map-wrapper">
+      <div class="map-controls">
+        <span style="font-size:0.85rem; font-weight:700; color:var(--primary);">Region zoomen:</span>
+        <button class="map-btn active" onclick="setMapView(-25.95, 37.65, -25.10, 37.90, this)">1. São Miguel (Gesamt)</button>
+        <button class="map-btn" onclick="setMapView(-25.82, 37.82, -25.74, 37.88, this)">Sete Cidades (West)</button>
+        <button class="map-btn" onclick="setMapView(-25.35, 37.74, -25.28, 37.79, this)">Furnas & Terra Nostra (Ost)</button>
+        <button class="map-btn" onclick="setMapView(-28.75, 38.38, -28.05, 38.62, this)">2. Insel Pico & Faial (Inselhopping)</button>
+      </div>
+      <iframe id="osm-iframe" class="osm-frame" src="https://www.openstreetmap.org/export/embed.html?bbox=-25.95%2C37.65%2C-25.10%2C37.90&layer=mapnik&marker=37.7412%2C-25.6756"></iframe>
+    </div>
+  </div>
+
+  <!-- TAB 2: HOTELS & AIRBNB -->
+  <div id="tab-stays" class="tab-content">
+    <h2 class="section-title">🏨 2A. Hotel-Vorschläge (1 Einzelzimmer + 1 Doppelzimmer für 10 Nächte)</h2>
+    <p style="font-size:0.92rem; color:var(--muted); margin-bottom:16px;">Wähle eine Unterkunfts-Kategorie aus (klickbar) oder vergleiche die Airbnb-Alternativen direkt darunter:</p>
+    
+    <div class="grid-3">
+      <!-- Hotel 1 -->
+      <div class="selectable-card selected" id="stay-hotel1" onclick="selectStay('hotel1', 1950)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag">4★ Hafenlage • Bestseller</span>
+        <h3>Hotel Marina Atlântico (PDL) + Hotel Caravelas (Pico)</h3>
+        <p style="font-size:0.86rem; color:var(--muted);">Beide 4-Sterne-Häuser der Bensaúde-Gruppe liegen direkt am Yacht-/Fährhafen. Ideal für 1 EZ + 1 DZ inkl. Frühstücksbuffet & Innenpool.</p>
+        <div class="price-highlight">1.950 € gesamt (10 Nächte, 1 EZ + 1 DZ)</div>
+        <button class="btn-outline" onclick="event.stopPropagation(); openPreview('Marina Atlântico & Caravelas', '1 Einzelzimmer + 1 Doppelzimmer mit Meer-/Hafenblick, Frühstück inklusive, Innenpool & Sauna.', '37.7405', '-25.6652', 'https://www.bensaudehotels.com/hotelmarinaatlantico/')">👁️ Vorschau & Lage</button>
+      </div>
+
+      <!-- Hotel 2 -->
+      <div class="selectable-card" id="stay-hotel2" onclick="selectStay('hotel2', 2280)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag">4★ Boutique & Altstadt</span>
+        <h3>NINE DOTS Art Boutique Hotel + Pocinho Bay</h3>
+        <p style="font-size:0.86rem; color:var(--muted);">Stilvolles Design-Hotel mitten in der Fußgängerzone von Ponta Delgada + ruhiges Boutique-Resort in den Lava-Weinbergen auf Pico.</p>
+        <div class="price-highlight">2.280 € gesamt (10 Nächte, 1 EZ + 1 DZ)</div>
+        <button class="btn-outline" onclick="event.stopPropagation(); openPreview('NINE DOTS & Pocinho Bay', 'Moderne Zimmer (1 EZ + 1 DZ), Spa-Bereich mit Innenpool, fußläufig zu Top-Restaurants wie A Tasca.', '37.7418', '-25.6695', 'https://ninedotsazores.com/')">👁️ Vorschau & Lage</button>
+      </div>
+
+      <!-- Hotel 3 -->
+      <div class="selectable-card" id="stay-hotel3" onclick="selectStay('hotel3', 2450)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag">4★ Wellness & Thermal</span>
+        <h3>Vila Galé Collection + Terra Nostra Garden Hotel</h3>
+        <p style="font-size:0.86rem; color:var(--muted);">Kombination aus historischem Stadthotel in Ponta Delgada und direktem 24h-Zugang zu den warmen Thermalquellen in Furnas.</p>
+        <div class="price-highlight">2.450 € gesamt (10 Nächte, 1 EZ + 1 DZ)</div>
+        <button class="btn-outline" onclick="event.stopPropagation(); openPreview('Vila Galé & Terra Nostra Garden', '1 EZ + 1 DZ inkl. Frühstück. Im Terra Nostra habt ihr nachts exklusiven Zugang zum beleuchteten Thermalbecken.', '37.7745', '-25.3142', 'https://www.parqueterranostra.com/')">👁️ Vorschau & Lage</button>
+      </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:28px;">🏡 2B. Drei Airbnb-Alternativen (Superhosts / Top-Gastgeber, 2+ Schlafzimmer)</h2>
+    <p style="font-size:0.92rem; color:var(--muted); margin-bottom:16px;">Für 3 Personen bieten Apartments/Häuser mit 2 separaten Schlafzimmern oft mehr Platz (Wohnzimmer, Küche, Waschmaschine für Wanderkleidung) als getrennte Hotelzimmer. Klicke eine Option an, um sie im Kostenrechner auszuwählen:</p>
+
+    <div class="grid-3">
+      <!-- Airbnb 1 -->
+      <div class="selectable-card" id="stay-abnb1" onclick="selectStay('abnb1', 1520)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag airbnb">Airbnb Superhost • Altstadt PDL</span>
+        <h3>1. Azorean Heritage Duplex (2 SZ, Ponta Delgada)</h3>
+        <p style="font-size:0.86rem; color:var(--muted);"><strong>Lage:</strong> Ruhige Seitenstraße nahe Portas da Cidade & Markthalle (Mercado da Graça).<br><strong>Ausstattung:</strong> 2 getrennte Schlafzimmer, 2 Bäder, Heizung/Klimaanlage (wichtig im Winter!), Waschmaschine & Balkon.</p>
+        <div class="price-highlight">ca. 1.520 € gesamt (10 Nächte inkl. Gebühren)</div>
+        <a class="btn-link" href="https://www.airbnb.de/s/Ponta-Delgada--Portugal/homes?checkin=2026-12-28&checkout=2027-01-07&adults=3&min_bedrooms=2&superhost=true" target="_blank" onclick="event.stopPropagation()">🔗 Verfügbarkeit & Fotos auf Airbnb prüfen</a>
+      </div>
+
+      <!-- Airbnb 2 -->
+      <div class="selectable-card" id="stay-abnb2" onclick="selectStay('abnb2', 1680)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag airbnb">Airbnb Gäste-Favorit • Meerblick</span>
+        <h3>2. Oceanfront Villa & Terrace (São Roque / Rosto de Cão)</h3>
+        <p style="font-size:0.86rem; color:var(--muted);"><strong>Lage:</strong> Direkt an der Südküste 5 Fahrminuten östlich von Ponta Delgada mit kostenlosem Parkplatz vor der Tür.<br><strong>Ausstattung:</strong> 2–3 Schlafzimmer, Panoramaterrasse aufs Meer, voll ausgestattete Küche & Kaminofen.</p>
+        <div class="price-highlight">ca. 1.680 € gesamt (10 Nächte inkl. Gebühren)</div>
+        <a class="btn-link" href="https://www.airbnb.de/s/Sao-Roque--Ponta-Delgada--Portugal/homes?checkin=2026-12-28&checkout=2027-01-07&adults=3&min_bedrooms=2&superhost=true" target="_blank" onclick="event.stopPropagation()">🔗 Verfügbarkeit & Fotos auf Airbnb prüfen</a>
+      </div>
+
+      <!-- Airbnb 3 -->
+      <div class="selectable-card" id="stay-abnb3" onclick="selectStay('abnb3', 1790)">
+        <div class="check-indicator">✓</div>
+        <span class="card-tag airbnb">Airbnb Superhost • Kombi-Aufenthalt</span>
+        <h3>3. Kombi: Loft in Ponta Delgada + Lava-Steinhaus auf Pico</h3>
+        <p style="font-size:0.86rem; color:var(--muted);"><strong>Lage:</strong> 6 Nächte im Zentrum von PDL + 4 Nächte in einer traditionellen <em>Adega</em> (Lavasteinhaus) in Madalena/Criação Velha mit Blick auf den Vulkan Pico.<br><strong>Ausstattung:</strong> Jeweils 2 Schlafzimmer, Heizung, Privatparkplatz.</p>
+        <div class="price-highlight">ca. 1.790 € gesamt (10 Nächte inkl. Gebühren)</div>
+        <a class="btn-link" href="https://www.airbnb.de/s/Madalena--Azores--Portugal/homes?checkin=2027-01-03&checkout=2027-01-07&adults=3&min_bedrooms=2&superhost=true" target="_blank" onclick="event.stopPropagation()">🔗 Pico-Unterkünfte & Fotos auf Airbnb prüfen</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: TAGESPLAN & WANDERUNGEN -->
+  <div id="tab-itinerary" class="tab-content">
+    <h2 class="section-title">🥾 3. Tagesplan: Sightseeing, Wanderungen & Kulinarik (28. Dez. – 07. Jan.)</h2>
+    <p style="font-size:0.9rem; color:var(--muted); margin-bottom:14px;">Optimiert auf die kürzeren Wintertage (Sonnenaufgang ca. 07:55 Uhr, Sonnenuntergang ca. 17:35 Uhr) – Wanderungen starten jeweils vormittags, Kulinarik & Thermalbäder folgen am Nachmittag.</p>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:13%;">Tag / Datum</th>
+            <th style="width:27%;">Region & Sightseeing</th>
+            <th style="width:32%;">Wanderung (Distanz / Höhenmeter / Dauer)</th>
+            <th style="width:28%;">Kulinarik-Highlight</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Tag 1</strong><br>Mo., 28. Dez.</td>
+            <td>Ankunft Ponta Delgada (PDL), Mietwagenübernahme & Altstadtspaziergang (Portas da Cidade)</td>
+            <td>Entspannter Stadtrundgang & Hafenpromenade (ca. 3 km, flach)</td>
+            <td>Abendessen im <strong>A Tasca</strong> (Azoreanische Tapas, <em>Polvo Guisado</em> & regionales Rind)</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 2</strong><br>Di., 29. Dez.</td>
+            <td><strong>Sete Cidades (West):</strong> Miradouro da Vista do Rei, Ponte dos Sete Cidades & Lava-Pools Mosteiros</td>
+            <td><strong>PRC03 SMI – Vista do Rei → Sete Cidades:</strong> 7,7 km | ↑ 120 m / ↓ 420 m | ca. 2,5 Std. (leicht–mittel)</td>
+            <td>Mittagessen im Dorf Sete Cidades (<em>Lagoa Azul</em> Buffet) & Sonnenuntergangs-Drink in Mosteiros</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 3</strong><br>Mi., 30. Dez.</td>
+            <td><strong>Inselmitte & Nordküste:</strong> Lagoa do Fogo & heiße Wasserfälle von Caldeira Velha (vorab buchen!)</td>
+            <td><strong>PRC02 SMI – Praia → Lagoa do Fogo:</strong> 11 km | ↑ 450 m / ↓ 450 m | ca. 3,5–4 Std. (mittel)</td>
+            <td>Besuch der Teeplantage <strong>Chá Gorreana</strong> (Grüntee & Kuchen) + Fisch-Dinner in Ribeira Grande</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 4</strong><br>Do., 31. Dez.<br><em>(Silvester)</em></td>
+            <td><strong>Furnas (Ost):</strong> Brodelnde Fumarolen (Caldeiras) & Thermalbad im Terra-Nostra-Park</td>
+            <td><strong>PRC06 SMI – Furnas See- & Kraterrunde:</strong> 9,5 km | ↑ 280 m / ↓ 280 m | ca. 3 Std. (mittel)</td>
+            <td>Mittags: <strong>Cozido das Furnas</strong> (im Vulkanboden gegart) • Abends: Silvester-Dinner & Feuerwerk am Hafen von PDL</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 5</strong><br>Fr., 01. Jan.<br><em>(Neujahr)</em></td>
+            <td><strong>Südküste & Vila Franca do Campo:</strong> Wallfahrtskapelle Nossa Senhora da Paz & Ananasplantage</td>
+            <td><strong>PRC09 SMI – Faial da Terra → Salto do Prego:</strong> 4,5 km | ↑ 260 m / ↓ 260 m | ca. 2 Std. (mittel)</td>
+            <td>Neujahrs-Lunch mit <em>Queijadas da Vila</em> (traditionelles Gebäck) & Ananas-Likör-Verkostung in Fajã de Baixo</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 6</strong><br>Sa., 02. Jan.</td>
+            <td><strong>Nordosten (Nordeste):</strong> Steilküsten-Aussichtspunkte Ponta do Sossego & Ribeira dos Caldeirões</td>
+            <td><strong>PRC04 SMI – Lomba da Fazenda / Mühlenweg:</strong> 6,5 km | ↑ 220 m / ↓ 220 m | ca. 2,5 Std. (mittel)</td>
+            <td>Regionale Hausmannskost im <em>Restaurante O Galego</em> (berühmt für zartes azoreanisches Steak)</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 7</strong><br>So., 03. Jan.</td>
+            <td><strong>Flug nach Pico (Inselhopping)</strong> oder Küstenwanderung Lagoa das Furnas / Janela do Inferno</td>
+            <td><strong>PR05 PIC – Vinhas da Criação Velha (UNESCO):</strong> 6,9 km | ↑ 90 m / ↓ 90 m | ca. 2 Std. (leicht, direkt am Meer)</td>
+            <td>Weinprobe (<em>Verdelho</em>) & Käse (<em>Queijo do Pico</em>) in der Winzergenossenschaft Pico Wines</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 8</strong><br>Mo., 04. Jan.</td>
+            <td><strong>Tagesausflug Insel Faial (30 Min. Fähre):</strong> Horta Hafen & Vulkanlandschaft Capelinhos</td>
+            <td><strong>PRC04 FAI – Caldeira do Faial Kraterrand:</strong> 7,2 km | ↑ 240 m / ↓ 240 m | ca. 2,5 Std. (mittel)</td>
+            <td>Pflichtstopp im legendären Seglertreff <strong>Peter Café Sport</strong> (<em>Gin do Mar</em> & Steak-Sandwich)</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 9</strong><br>Di., 05. Jan.</td>
+            <td><strong>Pico Hochland & Südküste:</strong> Lagoa do Capitão & Walfangmuseum in Lajes do Pico</td>
+            <td><strong>PR13 PIC – Lagoa do Capitão → São Roque:</strong> 9,2 km | ↑ 80 m / ↓ 780 m | ca. 3 Std. (mittel)</td>
+            <td>Abendessen in der spektakulären <strong>Cella Bar</strong> direkt auf den Lavafelsen von Madalena</td>
+          </tr>
+          <tr>
+            <td><strong>Tag 10</strong><br>Mi., 06. Jan.</td>
+            <td><strong>Rückflug Pico → Ponta Delgada:</strong> Nachmittags Whale Watching oder Shopping in der Markthalle</td>
+            <td>Entspannter Küstenspaziergang Ponta Delgada – São Roque (4 km, flach)</td>
+            <td>Abschieds-Dinner im <em>Otaka</em> (azoreanisches Fusion-Sushi mit lokalem Thunfisch) oder <em>O Rei dos Queijos</em></td>
+          </tr>
+          <tr>
+            <td><strong>Tag 11</strong><br>Do., 07. Jan.</td>
+            <td>Letzter Espresso in der Altstadt, Mietwagenrückgabe am Flughafen PDL & Rückflug nach München</td>
+            <td>–</td>
+            <td>Frühstück mit frischen <em>Pastéis de Nata</em> & Bolos Lêvedos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: WETTER, GESUNDHEIT & HINWEISE -->
+  <div id="tab-weather" class="tab-content">
+    <h2 class="section-title">🌦️ 4A. Wetter-Vorhersage (28. Dez. – 07. Jan. auf Basis historischer Klimadaten)</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag">Klimadaten Jahreswechsel (Ponta Delgada / Küste)</span>
+        <h3>Was euch meteorologisch erwartet</h3>
+        <div class="weather-stat"><span>🌡️ Tagestemperatur (Küste):</span><strong>15 °C – 17 °C (gefühlt mild)</strong></div>
+        <div class="weather-stat"><span>🌙 Nachttemperatur (Küste):</span><strong>11 °C – 13 °C</strong></div>
+        <div class="weather-stat"><span>🏔️ Temperatur in Höhenlagen (Kraterseen / Pico):</span><strong>6 °C – 10 °C (deutlich windiger)</strong></div>
+        <div class="weather-stat"><span>🌊 Wassertemperatur Atlantik:</span><strong>ca. 17 °C – 18 °C</strong></div>
+        <div class="weather-stat"><span>♨️ Thermalquellen (Furnas / Caldeira Velha):</span><strong>35 °C – 39 °C (ganzjährig heiß!)</strong></div>
+        <div class="weather-stat"><span>🌧️ Regentage & Schauer:</span><strong>ca. 14–16 Tage/Monat (meist kurze Schauer)</strong></div>
+        <div class="weather-stat"><span>☀️ Sonnenstunden & Tageslicht:</span><strong>ca. 3–4 Std. Sonne/Tag (hell: 07:55 – 17:35 Uhr)</strong></div>
+      </div>
+
+      <div class="card">
+        <span class="card-tag">Praxis-Tipp für eure Ausflüge</span>
+        <h3>„Vier Jahreszeiten an einem Tag“</h3>
+        <p style="font-size:0.9rem; color:var(--muted); margin-bottom:10px;">Durch den Golfstrom gibt es auf den Azoren keinen Frost (außer ganz oben am 2.351 m hohen Gipfel des Pico). Das Wetter wechselt jedoch oft im 30-Minuten-Takt zwischen Sonnenschein, Sprühregen und Nebel in den Höhenlagen.</p>
+        <ul style="font-size:0.9rem; padding-left:18px; color:var(--text);">
+          <li style="margin-bottom:6px;"><strong>Webcam-Check vor der Abfahrt:</strong> Nutzt morgens die App/Website <em>SpotAzores</em>. Wenn Sete Cidades im Nebel liegt, fahrt an die Küste oder nach Furnas – dort scheint oft gleichzeitig die Sonne.</li>
+          <li style="margin-bottom:6px;"><strong>Luftfeuchtigkeit in Unterkünften:</strong> Im Winter liegt die Luftfeuchtigkeit bei ~80 %. Achtet bei Hotels/Airbnbs darauf, dass eine Heizung/Klimaanlage vorhanden ist, damit Wanderkleidung über Nacht trocknet.</li>
+          <li><strong>Winter-Vorteil:</strong> Die Insel ist im Dezember/Januar tiefgrün, die Thermalquellen sind bei 15 °C Außentemperatur ein Traum und die beliebten Wanderwege sind angenehm leer.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="section-title">🏥 4B. Impfungen, Gesundheit & Reisehinweise (Stand: Aktuell)</h2>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag">Gesundheit & Impfschutz (Auswärtiges Amt / RKI)</span>
+        <h3>Keine Pflichtimpfungen erforderlich</h3>
+        <ul style="font-size:0.9rem; padding-left:18px; color:var(--text);">
+          <li style="margin-bottom:8px;"><strong>Pflichtimpfungen:</strong> Bei Direktreise aus Deutschland bestehen <strong>keine</strong> Impfvorschriften.</li>
+          <li style="margin-bottom:8px;"><strong>Empfohlene Standardimpfungen:</strong> Überprüft vor Abreise euren allgemeinen Impfstatus gemäß STIKO (insbesondere <strong>Tetanus, Diphtherie, Pertussis</strong> sowie ggf. Hepatitis A/B).</li>
+          <li style="margin-bottom:8px;"><strong>Krankenversicherung:</strong> Die Azoren gehören als autonome Region Portugals zur <strong>EU</strong>. Eure gesetzliche Europäische Krankenversicherungskarte (EHIC) ist gültig; eine private Auslandsreise-Krankenversicherung (inkl. Rücktransport) wird dennoch empfohlen.</li>
+          <li><strong>Thermalwasser-Hinweis:</strong> In den natürlichen heißen Quellen (z. B. Caldeira Velha) den Kopf nicht untertauchen (allgemeine Vorsichtsmaßnahme bei warmem Süßwasser) und bei offenen Wunden nicht baden.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="card-tag warn">Sicherheit & Reisewarnungen</span>
+        <h3>Aktuelle Sicherheitslage & Naturhinweise</h3>
+        <ul style="font-size:0.9rem; padding-left:18px; color:var(--text);">
+          <li style="margin-bottom:8px;"><strong>Reisewarnung:</strong> Es liegt <strong>keine Reisewarnung</strong> des Auswärtigen Amtes für Portugal / die Azoren vor. Die Kriminalitätsrate ist extrem niedrig.</li>
+          <li style="margin-bottom:8px;"><strong>Atlantik & Küstenwellen:</strong> Im Winter kann die Dünung an ungeschützten Küstenabschnitten stark sein. Haltet an Steilküsten und natürlichen Lava-Pools Abstand zur Brandungskante.</li>
+          <li style="margin-bottom:8px;"><strong>Wanderwege im Winter:</strong> Nach Regenfällen können Erd- und Wurzelpfade (z. B. Lagoa do Fogo oder Salto do Prego) rutschig sein – knöchelhohe Wanderschuhe mit gutem Profil sind Pflicht.</li>
+          <li><strong>Seismische Aktivität:</strong> Die Azoren sind vulkanischen Ursprungs; leichte, kaum spürbare Erdstöße kommen gelegentlich vor, beeinträchtigen den Reisebetrieb aber normalerweise nicht.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: GESAMTKOSTEN & PACKLISTE -->
+  <div id="tab-budget" class="tab-content">
+    <h2 class="section-title">💶 5A. Gesamtkosten-Übersicht & Konfigurator (für alle 3 Personen)</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Mietwagen & Erlebnis-Bausteine anpassen</h3>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.88rem; font-weight:600; display:block; margin-bottom:4px;">Mietwagen (10 Tage Kompaktklasse für 3 Pers. + Koffer, inkl. Vollkasko):</label>
+          <select id="car-select" onchange="updateBudget()" style="width:100%; padding:9px; border-radius:6px; border:1px solid var(--border);">
+            <option value="380">Kompaktklasse (z. B. VW Golf / Seat Leon – ca. 380 €)</option>
+            <option value="490" selected>Kompakt-SUV (z. B. VW T-Roc / Peugeot 2008 – ideal für steile Straßen – ca. 490 €)</option>
+            <option value="620">Kombi / Mittelklasse mit Automatik (ca. 620 €)</option>
+          </select>
+        </div>
+
+        <div class="checklist">
+          <label><input type="checkbox" id="opt-food" checked onchange="updateBudget()"> <span><strong>Kulinarik-Budget (10 Tage, 3 Pers.):</strong> Restaurants, Cozido, Weinprobe & Café-Stopps (~1.050 € gesamt / 35 € p.P./Tag)</span></label>
+          <label><input type="checkbox" id="opt-entries" checked onchange="updateBudget()"> <span><strong>Eintritte & Thermalbäder (3 Pers.):</strong> Terra Nostra Park, Caldeira Velha, Furnas Fumarolen (~135 €)</span></label>
+          <label><input type="checkbox" id="opt-whale" onchange="updateBudget()"> <span><strong>Optional: Whale-Watching-Tour</strong> ab Ponta Delgada (3 Pers. à 65 € = 195 €)</span></label>
+          <label><input type="checkbox" id="opt-fuel" checked onchange="updateBudget()"> <span><strong>Benzin & Parkgebühren</strong> für 10 Tage Inselrundfahrten (~110 €)</span></label>
+        </div>
+      </div>
+
+      <div class="card" style="background:#f8fafc;">
+        <h3>📊 Live-Kostenaufstellung (Alle 3 Personen)</h3>
+        <table>
+          <tr><td>✈️ Hin- & Rückflüge (MUC ↔ PDL, 3 Pers.)</td><td style="text-align:right;"><strong id="sum-flights">1.560 €</strong></td></tr>
+          <tr><td>🏨/🏡 Unterkunft (10 Nächte, 1 EZ+1 DZ oder Airbnb)</td><td style="text-align:right;"><strong id="sum-stay">1.950 €</strong></td></tr>
+          <tr><td>🛥️ Inselhopping (Inlandsflug + Fähre, 3 Pers.)</td><td style="text-align:right;"><strong id="sum-hopping">390 €</strong></td></tr>
+          <tr><td>🚗 Mietwagen + Benzin</td><td style="text-align:right;"><strong id="sum-car">600 €</strong></td></tr>
+          <tr><td>🍽️ Kulinarik, Eintritte & Aktivitäten</td><td style="text-align:right;"><strong id="sum-extras">1.185 €</strong></td></tr>
+          <tr style="background:#e2e8f0; font-size:1.05rem;">
+            <td><strong>GESAMTKOSTEN (3 Personen)</strong></td>
+            <td style="text-align:right; color:var(--primary);"><strong id="sum-total">5.685 €</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Kosten pro Person (bei 3 Reisenden)</strong></td>
+            <td style="text-align:right; color:var(--accent);"><strong id="sum-pp">1.895 € p.P.</strong></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <h2 class="section-title">🎒 5B. Winter- & Wander-Packliste (Speziell für Silvester auf den Azoren)</h2>
+    <div class="card checklist">
+      <div class="grid-2" style="margin-bottom:0;">
+        <div>
+          <label><input type="checkbox"> <span><strong>Dunkle / alte Badesachen:</strong> Das eisenhaltige Thermalwasser in Furnas (Terra Nostra) färbt helle Badekleidung dauerhaft orange-braun!</span></label>
+          <label><input type="checkbox"> <span><strong>Regen- & Windjacke (Hardshell):</strong> Atmungsaktiv und wasserdicht – Regenschirme sind bei Atlantikwind nutzlos.</span></label>
+          <label><input type="checkbox"> <span><strong>Zwiebellook:</strong> Funktionsshirts, Fleece- oder Merinopullover für kühle Kraterränder (6–10 °C).</span></label>
+        </div>
+        <div>
+          <label><input type="checkbox"> <span><strong>Eingelaufene Wanderschuhe mit Profil:</strong> Für feuchte Vulkanpfade und Lavastein.</span></label>
+          <label><input type="checkbox"> <span><strong>Tagesrucksack mit Regenhülle + Trinkflasche</strong></span></label>
+          <label><input type="checkbox"> <span><strong>EU-Krankenkassenkarte (EHIC) & Führerschein + Kreditkarte</strong> (für Mietwagenkaution)</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hotel Preview Modal -->
+<div class="modal-backdrop" id="preview-modal" onclick="closePreview()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closePreview()">✕</button>
+    <span class="card-tag">Unterkunfts-Vorschau & Lagekarte</span>
+    <h2 id="modal-title" style="color:var(--primary); margin-bottom:8px;">Hotel Name</h2>
+    <p id="modal-desc" style="font-size:0.92rem; color:var(--text); margin-bottom:14px;"></p>
+    <iframe id="modal-map" style="width:100%; height:260px; border:1px solid var(--border); border-radius:8px; margin-bottom:14px;"></iframe>
+    <a id="modal-link" href="#" target="_blank" class="btn-link">🌐 Offizielle Website & Zimmerfotos öffnen</a>
+  </div>
+</div>
+
+<!-- Sticky Bottom Cost Bar -->
+<div class="cost-bar">
+  <div class="cost-bar-inner">
+    <div class="cost-items">
+      <span>Flüge: <strong id="bar-flights">1.560 €</strong></span>
+      <span>Unterkunft: <strong id="bar-stay">1.950 €</strong></span>
+      <span>Inselhopping: <strong id="bar-hopping">390 €</strong></span>
+      <span>Mietwagen/Extras: <strong id="bar-rest">1.785 €</strong></span>
+    </div>
+    <div class="cost-total">
+      <div class="big-price" id="bar-total">5.685 € gesamt</div>
+      <div class="per-person" id="bar-pp">(1.895 € pro Person • inkl. Flüge, 10 Nächte, Auto & Kulinarik)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedRoute = 'hopping';
+  let selectedStayCost = 1950;
+
+  function openTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function setMapView(minLon, minLat, maxLon, maxLat, btn) {
+    document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cLat = ((minLat + maxLat) / 2).toFixed(4);
+    const cLon = ((minLon + maxLon) / 2).toFixed(4);
+    document.getElementById('osm-iframe').src = `https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${cLat}%2C${cLon}`;
+  }
+
+  function selectRoute(route) {
+    selectedRoute = route;
+    document.getElementById('route-hopping').classList.toggle('selected', route === 'hopping');
+    document.getElementById('route-single').classList.toggle('selected', route === 'single');
+    updateBudget();
+  }
+
+  function selectStay(id, cost) {
+    selectedStayCost = cost;
+    document.querySelectorAll('[id^="stay-"]').forEach(el => el.classList.remove('selected'));
+    document.getElementById('stay-' + id).classList.add('selected');
+    updateBudget();
+  }
+
+  function openPreview(title, desc, lat, lon, url) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-desc').innerText = desc;
+    document.getElementById('modal-link').href = url;
+    const d = 0.015;
+    document.getElementById('modal-map').src = `https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon)-d}%2C${parseFloat(lat)-d}%2C${parseFloat(lon)+d}%2C${parseFloat(lat)+d}&layer=mapnik&marker=${lat}%2C${lon}`;
+    document.getElementById('preview-modal').classList.add('open');
+  }
+
+  function closePreview() {
+    document.getElementById('preview-modal').classList.remove('open');
+  }
+
+  function updateBudget() {
+    const flights = parseInt(document.getElementById('flight-select').value, 10);
+    const hopping = (selectedRoute === 'hopping') ? 390 : 0;
+    const car = parseInt(document.getElementById('car-select').value, 10);
+    const fuel = document.getElementById('opt-fuel').checked ? 110 : 0;
+    const food = document.getElementById('opt-food').checked ? 1050 : 0;
+    const entries = document.getElementById('opt-entries').checked ? 135 : 0;
+    const whale = document.getElementById('opt-whale').checked ? 195 : 0;
+
+    const carTotal = car + fuel;
+    const extrasTotal = food + entries + whale;
+    const grandTotal = flights + selectedStayCost + hopping + carTotal + extrasTotal;
+    const perPerson = Math.round(grandTotal / 3);
+
+    const fmt = (n) => n.toLocaleString('de-DE') + ' €';
+
+    document.getElementById('sum-flights').innerText = fmt(flights);
+    document.getElementById('sum-stay').innerText = fmt(selectedStayCost);
+    document.getElementById('sum-hopping').innerText = fmt(hopping);
+    document.getElementById('sum-car').innerText = fmt(carTotal);
+    document.getElementById('sum-extras').innerText = fmt(extrasTotal);
+    document.getElementById('sum-total').innerText = fmt(grandTotal);
+    document.getElementById('sum-pp').innerText = fmt(perPerson) + ' p.P.';
+
+    document.getElementById('bar-flights').innerText = fmt(flights);
+    document.getElementById('bar-stay').innerText = fmt(selectedStayCost);
+    document.getElementById('bar-hopping').innerText = fmt(hopping);
+    document.getElementById('bar-rest').innerText = fmt(carTotal + extrasTotal);
+    document.getElementById('bar-total').innerText = fmt(grandTotal) + ' gesamt';
+    document.getElementById('bar-pp').innerText = `(${fmt(perPerson)} pro Person • inkl. Flüge, 10 Nächte, Auto & Kulinarik)`;
+  }
+
+  updateBudget();
+</script>
+</body>
+</html>
