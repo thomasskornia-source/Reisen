@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sizilien Reiseplan Silvester 2026/27 • 3 Personen ab München</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --text: #1c2434;
+      --muted: #5a6577;
+      --primary: #0f4c81;
+      --primary-light: #e7f0f9;
+      --accent: #d96b27;
+      --accent-light: #fdf1e8;
+      --teal: #1b7f79;
+      --border: #e1e6ef;
+      --radius: 14px;
+      --shadow: 0 6px 20px rgba(15, 35, 65, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+    a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+    /* Hero */
+    header.hero {
+      background: linear-gradient(135deg, #0b3559 0%, #165b8c 55%, #1b7f79 100%);
+      color: #fff;
+      padding: 46px 20px 38px;
+      border-bottom-left-radius: 26px;
+      border-bottom-right-radius: 26px;
+      box-shadow: var(--shadow);
+    }
+    .hero h1 { font-size: 2.1rem; margin-bottom: 10px; line-height: 1.2; }
+    .hero p.subtitle { font-size: 1.05rem; opacity: 0.92; max-width: 780px; margin-bottom: 20px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; }
+    .badge {
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(4px);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Nav */
+    nav.sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      margin-bottom: 28px;
+    }
+    .nav-links { display: flex; gap: 18px; overflow-x: auto; white-space: nowrap; }
+    .nav-links a { color: var(--text); font-size: 0.93rem; padding: 4px 8px; border-radius: 8px; }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+
+    section { margin-bottom: 42px; }
+    h2.section-title {
+      font-size: 1.55rem;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
+
+    /* Map */
+    #map {
+      height: 440px;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 18px; }
+    .stage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .stage-card.silvester { border-left-color: var(--accent); background: linear-gradient(to right, #fffaf6, #ffffff); }
+    .stage-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .stage-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .stage-dates { background: var(--primary-light); color: var(--primary); font-weight: 600; font-size: 0.86rem; padding: 4px 10px; border-radius: 999px; }
+    .stage-card.silvester .stage-dates { background: var(--accent-light); color: var(--accent); }
+    .stage-list { padding-left: 18px; color: #2d3748; }
+    .stage-list li { margin-bottom: 6px; }
+
+    /* Silvester Box */
+    .silvester-box {
+      background: linear-gradient(135deg, #fff5ed 0%, #fff 100%);
+      border: 1px solid #f5cbb0;
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .silvester-box h3 { color: var(--accent); margin-bottom: 10px; }
+
+    /* Filters */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Hotel Cards */
+    .stay-group-title { font-size: 1.18rem; margin: 24px 0 12px; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+    .stay-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+    }
+    .stay-visual {
+      height: 145px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.05rem;
+      overflow: hidden;
+    }
+    .stay-visual svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .stay-visual span.visual-label { position: relative; z-index: 1; text-shadow: 0 2px 6px rgba(0,0,0,0.45); }
+    .stay-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      background: rgba(15, 23, 42, 0.72);
+      color: #fff;
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .stay-body { padding: 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .stay-body h4 { font-size: 1.08rem; margin-bottom: 6px; }
+    .stay-body p { font-size: 0.92rem; color: var(--muted); margin-bottom: 14px; }
+    .stay-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; font-size: 0.9rem; }
+    .price-pill { font-weight: 700; color: var(--teal); }
+    .btn-link {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+    }
+    .btn-link:hover { background: var(--primary); color: #fff; text-decoration: none; }
+
+    /* Cost Table & Toggle */
+    .cost-toggle { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--radius); overflow: hidden; }
+    th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+    th { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+    tr.total-row { background: #f0f6fc; font-weight: 700; font-size: 1.02rem; }
+
+    /* Checklist */
+    .checklist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .check-item input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer; }
+    .check-item.checked span { text-decoration: line-through; color: var(--muted); }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.88rem; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1>Sizilien &amp; Liparische Inseln – Silvester 2026/27</h1>
+    <p class="subtitle">11 Nächte Rundreise für 3 Personen ab/bis München: Silvester in Palermo, Küstenflair in Cefalù, Vulkan-Inseln Lipari &amp; Stromboli sowie Taormina &amp; Ätna.</p>
+    <div class="badges">
+      <span class="badge">📅 29.12.2026 – 09.01.2027 (11 Nächte)</span>
+      <span class="badge">✈️ Gabelflug MUC → PMO / CTA → MUC</span>
+      <span class="badge">👥 3 Personen (1 DZ + 1 EZ)</span>
+      <span class="badge">🎆 Silvester in Palermo</span>
+      <span class="badge">🌤 ca. 14–17 °C &amp; Schnee am Ätna</span>
+    </div>
+  </div>
+</header>
+
+<nav class="sticky-nav">
+  <div class="container nav-links">
+    <a href="#fluege">1. Flüge &amp; Mobilität</a>
+    <a href="#karte">2. Interaktive Karte</a>
+    <a href="#route">3. Tagesetappen</a>
+    <a href="#silvester">4. Silvester in Palermo</a>
+    <a href="#unterkuenfte">5. Hotels &amp; Airbnbs</a>
+    <a href="#kosten">6. Kostenrechner</a>
+    <a href="#packliste">7. Packliste &amp; Tipps</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- 1. FLÜGE & BUCHUNGSLINKS -->
+  <section id="fluege">
+    <h2 class="section-title">1. Flugverbindungen ab München &amp; Buchungslinks</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>✈️ Empfehlung: Gabelflug (Palermo rein, Catania raus)</h3>
+        <p style="margin: 8px 0 12px; color: var(--muted);">Spart euch die lange Rückfahrt quer über die Insel. Beide Flughäfen werden ab München (MUC) nonstop angeflogen.</p>
+        <ul class="stage-list">
+          <li><strong>Hinflug (Di, 29.12.2026):</strong> München (MUC) → Palermo (PMO), ca. 2 Std. 05 Min. Nonstop</li>
+          <li><strong>Rückflug (Sa, 09.01.2027):</strong> Catania (CTA) → München (MUC), ca. 2 Std. 10 Min. Nonstop</li>
+          <li><strong>Richtpreis:</strong> ca. 230–330 € p. P. inkl. Gepäck (ca. 690–990 € für 3 Personen)</li>
+          <li><strong>Direkt prüfen:</strong> <a href="https://www.lufthansa.com/de/de/homepage" target="_blank" rel="noopener">Lufthansa</a> · <a href="https://www.ita-airways.com/de_de" target="_blank" rel="noopener">ITA Airways</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>⛴️ Fähren, Hafenparken &amp; Vulkan-Touren</h3>
+        <p style="margin: 8px 0 12px; color: var(--muted);">Alle wichtigen Links für die Liparischen Inseln (03.01.–06.01.) und den Ätna-Ausflug:</p>
+        <ul class="stage-list">
+          <li><strong>Schnellboote Milazzo ↔ Lipari / Stromboli:</strong> <a href="https://www.libertylines.it/en/" target="_blank" rel="noopener">Liberty Lines</a> oder <a href="https://www.ferryhopper.com/de/" target="_blank" rel="noopener">Ferryhopper</a> (Winterfahrplan ca. 6–8 Wochen vorher online)</li>
+          <li><strong>Bewachter Hafenparkplatz Milazzo:</strong> <a href="https://www.garagedelleisole.it/" target="_blank" rel="noopener">Garage delle Isole</a> (ca. 10–15 €/Tag direkt am Fährterminal)</li>
+          <li><strong>Stromboli-Bootstour (ab Lipari):</strong> <a href="https://www.getyourguide.de/lipari-l1555/" target="_blank" rel="noopener">Touren ab Marina Corta vergleichen</a></li>
+          <li><strong>Ätna-Seilbahn &amp; Wintertouren:</strong> <a href="https://www.funiviaetna.com/" target="_blank" rel="noopener">Funivia dell'Etna</a> · <a href="https://www.getyourguide.de/taormina-l297/aetna-touren-tc130/" target="_blank" rel="noopener">Geführte Ätna-Touren ab Taormina</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. INTERAKTIVE KARTE -->
+  <section id="karte">
+    <h2 class="section-title">2. Interaktive OpenStreetMap-Reiseroute</h2>
+    <div class="card">
+      <div id="map"></div>
+      <div class="map-legend">
+        <span><i class="dot" style="background:#0f4c81;"></i>Festland-Etappen (Mietwagen)</span>
+        <span><i class="dot" style="background:#d96b27;"></i>Silvester-Stopp (Palermo)</span>
+        <span><i class="dot" style="background:#1b7f79;"></i>Liparische Inseln (Schnellboot ab Milazzo)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TAGESETAPPEN -->
+  <section id="route">
+    <h2 class="section-title">3. Reiseroute im Detail (11 Nächte)</h2>
+    <div class="timeline">
+
+      <div class="stage-card silvester">
+        <div class="stage-header">
+          <span class="stage-title">Etappe 1: Palermo &amp; Monreale (inkl. Silvester 🎆)</span>
+          <span class="stage-dates">Di, 29.12. – Fr, 01.01. (3 Nächte)</span>
+        </div>
+        <ul class="stage-list">
+          <li><strong>29.12. (Anreise):</strong> Landung in Palermo, Mietwagen übernehmen (oder erst am 01.01. abholen, da Palermo perfekt zu Fuß erkundbar ist), Bummel über Quattro Canti &amp; Teatro Massimo.</li>
+          <li><strong>30.12. (Kultur &amp; Streetfood):</strong> Normannenpalast (Cappella Palatina), Kathedrale von Monreale und Streetfood-Tour über den Ballarò-Markt.</li>
+          <li><strong>31.12. (Silvester):</strong> Ausflug auf den Monte Pellegrino / Strand von Mondello, abends <em>Cenone di Capodanno</em> und Open-Air-Konzert auf der Piazza Politeama.</li>
+        </ul>
+      </div>
+
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-title">Etappe 2: Cefalù &amp; Nordküste</span>
+          <span class="stage-dates">Fr, 01.01. – So, 03.01. (2 Nächte)</span>
+        </div>
+        <ul class="stage-list">
+          <li><strong>01.01. (Neujahr):</strong> Entspannte Fahrt nach Cefalù (ca. 1 Std.), Neujahrsspaziergang am Sandstrand und Espresso vor dem normannischen Dom.</li>
+          <li><strong>02.01. (Burgfelsen &amp; Altstadt):</strong> Wanderung auf den Burgfelsen <em>La Rocca</em> mit Panoramablick über das Tyrrhenische Meer, abends Fisch-Trattoria in der Altstadt.</li>
+        </ul>
+      </div>
+
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-title">Etappe 3: Liparische Inseln (Lipari, Vulcano &amp; Stromboli)</span>
+          <span class="stage-dates">So, 03.01. – Mi, 06.01. (3 Nächte)</span>
+        </div>
+        <ul class="stage-list">
+          <li><strong>03.01. (Überfahrt):</strong> Fahrt nach Milazzo (ca. 1,5 Std.), Auto ins Hafenparkhaus stellen und per Schnellboot nach <strong>Lipari</strong> übersetzen (ca. 1 Std.).</li>
+          <li><strong>04.01. (Lipari &amp; Vulcano):</strong> Inselrundfahrt auf Lipari (Aussichtspunkt Quattrocchi, Bimssteinbrüche) oder kurzer Abstecher zur Nachbarinsel <strong>Vulcano</strong> (Schwefelkrater &amp; schwarze Strände).</li>
+          <li><strong>05.01. (Vulkan Stromboli):</strong> Nachmittags-Bootstour nach <strong>Stromboli</strong>, um nach Einbruch der Dunkelheit die glühenden Lavafontänen an der <em>Sciara del Fuoco</em> zu bestaunen.</li>
+        </ul>
+      </div>
+
+      <div class="stage-card">
+        <div class="stage-header">
+          <span class="stage-title">Etappe 4: Taormina &amp; Ätna</span>
+          <span class="stage-dates">Mi, 06.01. – Sa, 09.01. (3 Nächte)</span>
+        </div>
+        <ul class="stage-list">
+          <li><strong>06.01. (Ostküste):</strong> Morgens Rückfähre nach Milazzo und Fahrt nach <strong>Taormina</strong> (ca. 1,5 Std.). Nachmittags Antikes Theater mit Blick auf den schneebedeckten Ätna.</li>
+          <li><strong>07.01. (Ätna-Wintererlebnis):</strong> Ausflug zum Rifugio Sapienza (1.900 m), optional per Seilbahn &amp; Pistenraupe in die Schneelandschaft + Weinprobe an den Vulkanhängen.</li>
+          <li><strong>08.01. (Castelmola &amp; Isola Bella):</strong> Spaziergang ins Bergdorf Castelmola und hinunter zur Halbinsel Isola Bella.</li>
+          <li><strong>09.01. (Heimreise):</strong> Fahrt zum Flughafen Catania (ca. 50 Min.), optional kurzer Abstecher zum Fischmarkt und Rückflug nach München.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. SILVESTER IN PALERMO -->
+  <section id="silvester">
+    <h2 class="section-title">4. Silvester-Guide für Palermo (31.12.2026)</h2>
+    <div class="silvester-box">
+      <h3>🎆 Ablauf &amp; Restaurant-Tipps für das „Cenone di Capodanno“</h3>
+      <p style="margin-bottom: 14px;">In Palermo beginnt das festliche Silvester-Menü (<em>Cenone</em>, meist 5–7 Gänge) gegen 20:30–21:00 Uhr. Danach zieht es alle zur großen kostenlosen Open-Air-Party auf die <strong>Piazza Ruggero Settimo (Politeama)</strong>. <strong>Wichtig:</strong> Restaurants spätestens Anfang Dezember reservieren!</p>
+      <div class="grid-3">
+        <div class="card">
+          <h4>🍽️ Osteria Ballarò</h4>
+          <p style="font-size:0.9rem; color:var(--muted); margin:6px 0 10px;">Viertel Kalsa • Gehobene sizilianische Küche in einem historischen Pferdestall mit toller Weinkarte. Perfekte Lage für den Spaziergang Richtung Zentrum.</p>
+          <a href="https://www.osteriaballaro.it/" target="_blank" rel="noopener">Website &amp; Reservierung →</a>
+        </div>
+        <div class="card">
+          <h4>🐟 Corona Trattoria</h4>
+          <p style="font-size:0.9rem; color:var(--muted); margin:6px 0 10px;">Zentrum (nahe Via Roma) • Familiär, herzlich und berühmt für fangfrischen Fisch und Meeresfrüchte ohne Schnickschnack.</p>
+          <a href="https://www.tripadvisor.de/Restaurant_Review-g187890-d7275303-Reviews-Corona_Trattoria-Palermo_Province_of_Palermo_Sicily.html" target="_blank" rel="noopener">Bewertungen &amp; Kontakt →</a>
+        </div>
+        <div class="card">
+          <h4>⭐ Gagini Restaurant</h4>
+          <p style="font-size:0.9rem; color:var(--muted); margin:6px 0 10px;">Viertel La Loggia • 1 Michelin-Stern – für ein besonders exklusives Silvester-Degustationsmenü in historischem Ambiente.</p>
+          <a href="https://www.gaginirestaurant.com/" target="_blank" rel="noopener">Website &amp; Menü →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. UNTERKÜNFTE MIT VORSCHAU & LINKS -->
+  <section id="unterkuenfte">
+    <h2 class="section-title">5. Schicke Hotel- &amp; Airbnb-Vorschläge (ganzjährig geöffnet)</h2>
+    <p style="color:var(--muted); margin-bottom:14px;">Alle Preise sind Richtwerte für <strong>3 Personen (1 Doppelzimmer + 1 Einzelzimmer bzw. 2-Schlafzimmer-Apartment)</strong> pro Nacht über den Jahreswechsel.</p>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterStays('all', this)">Alle anzeigen (12)</button>
+      <button class="filter-btn" onclick="filterStays('hotel', this)">Nur Boutique-Hotels (8)</button>
+      <button class="filter-btn" onclick="filterStays('airbnb', this)">Nur Airbnbs / Apartments (4)</button>
+    </div>
+
+    <div id="stays-container"></div>
+  </section>
+
+  <!-- 6. KOSTENRECHNER -->
+  <section id="kosten">
+    <h2 class="section-title">6. Gesamtkosten-Übersicht für 3 Personen (11 Nächte)</h2>
+    <div class="cost-toggle">
+      <button class="filter-btn active" id="btn-cost-hotel" onclick="setCostMode('hotel')">Variante A: Boutique-Hotels (DZ + EZ)</button>
+      <button class="filter-btn" id="btn-cost-airbnb" onclick="setCostMode('airbnb')">Variante B: 2-Schlafzimmer-Airbnbs</button>
+    </div>
+    <div class="card" style="padding:0; overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Kostenpunkt</th>
+            <th>Details (3 Erwachsene • 29.12.2026 – 09.01.2027)</th>
+            <th>3 Personen gesamt</th>
+          </tr>
+        </thead>
+        <tbody id="cost-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7. PACKLISTE & WINTER-TIPPS -->
+  <section id="packliste">
+    <h2 class="section-title">7. Abhakbare Packliste &amp; Winter-Hinweise</h2>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <h3>🌤 Wetter &amp; Insel-Logistik im Winter</h3>
+        <ul class="stage-list" style="margin-top:8px;">
+          <li><strong>Klima an der Küste:</strong> Mild mit 14–17 °C tagsüber (abends ca. 9–11 °C) und 4–5 Sonnenstunden.</li>
+          <li><strong>Ätna-Kontrast:</strong> Ab ca. 1.900 m liegt oft Schnee (0–5 °C) – Mütze und Handschuhe einpacken!</li>
+          <li><strong>Fähr-Puffer:</strong> Bei Wintersturm können Schnellboote kurzfristig ausfallen; die Rückkehr aufs Festland am 06.01. lässt 3 volle Puffertage vor dem Rückflug.</li>
+          <li><strong>ZTL-Zonen &amp; Heizung:</strong> In Altstädten auf verkehrsberuhigte ZTL-Zonen achten; bei Airbnbs auf gute Heizungsbewertungen schauen.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>✅ Interaktive Packliste (Klick zum Abhaken)</h3>
+        <div class="checklist-grid" id="checklist" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Sizilien Reiseplan Silvester 2026/27 • Erstellt für 3 Personen ab München • Alle Preise sind unverbindliche Richtwerte.
+</footer>
+
+<script>
+  // 1. OpenStreetMap Setup
+  const map = L.map('map').setView([38.05, 14.55], 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap-Mitwirkende'
+  }).addTo(map);
+
+  const stops = [
+    { name: "1. Palermo (3N • 29.12.–01.01.)", desc: "Ankunft, Altstadt, Monreale & Silvester-Feier auf der Piazza Politeama", coords: [38.1157, 13.3615], color: "#d96b27" },
+    { name: "2. Cefalù (2N • 01.01.–03.01.)", desc: "Normannischer Dom, Strandpromenade & Burgfelsen La Rocca", coords: [38.0395, 14.0229], color: "#0f4c81" },
+    { name: "Hafen Milazzo (Parkhaus)", desc: "Auto abstellen im Garage delle Isole & Umstieg aufs Schnellboot", coords: [38.2198, 15.2422], color: "#0f4c81" },
+    { name: "3. Lipari (3N • 03.01.–06.01.)", desc: "Inselbasis auf den Liparischen Inseln, Quattrocchi & Marina Corta", coords: [38.4675, 14.9540], color: "#1b7f79" },
+    { name: "Ausflug: Vulcano", desc: "Kurzer Bootstrip zu den Schwefelkratern & schwarzen Stränden", coords: [38.4042, 14.9628], color: "#1b7f79" },
+    { name: "Ausflug: Stromboli", desc: "Abendliche Bootstour zu den glühenden Lavafontänen (Sciara del Fuoco)", coords: [38.7891, 15.2131], color: "#1b7f79" },
+    { name: "4. Taormina (3N • 06.01.–09.01.)", desc: "Antikes Theater, Corso Umberto, Isola Bella & Castelmola", coords: [37.8516, 15.2853], color: "#0f4c81" },
+    { name: "Ausflug: Ätna Süd (Rifugio Sapienza)", desc: "Schneelandschaft auf 1.900–2.750 m & Weinprobe", coords: [37.6994, 15.0029], color: "#0f4c81" },
+    { name: "Flughafen Catania (09.01.)", desc: "Mietwagen-Rückgabe & Direktflug zurück nach München", coords: [37.4668, 15.0664], color: "#0f4c81" }
+  ];
+
+  stops.forEach(s => {
+    const icon = L.divIcon({
+      className: "custom-pin",
+      html: `<div style="background:${s.color};width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+    L.marker(s.coords, { icon }).addTo(map).bindPopup(`<strong>${s.name}</strong><br>${s.desc}`);
+  });
+
+  // Festland-Route
+  L.polyline([
+    [38.1157, 13.3615],
+    [38.0395, 14.0229],
+    [38.2198, 15.2422],
+    [37.8516, 15.2853],
+    [37.6994, 15.0029],
+    [37.4668, 15.0664]
+  ], { color: '#0f4c81', weight: 3, opacity: 0.75 }).addTo(map);
+
+  // Fährrouten
+  L.polyline([
+    [38.2198, 15.2422],
+    [38.4042, 14.9628],
+    [38.4675, 14.9540],
+    [38.7891, 15.2131]
+  ], { color: '#1b7f79', weight: 3, dashArray: '6, 8', opacity: 0.85 }).addTo(map);
+
+  // 2. Unterkünfte Daten (inkl. integrierter SVG-Vorschaugrafiken ohne externe URLs)
+  const stayGroups = [
+    {
+      city: "Palermo (3 Nächte: 29.12. – 01.01. • Silvester)",
+      items: [
+        {
+          type: "hotel",
+          name: "Palazzo Natoli Boutique Hotel",
+          tag: "4★ Boutique-Hotel",
+          desc: "Modernes Design-Hotel direkt neben der Kathedrale von Palermo mit exzellentem Frühstück und kurzen Wegen zur Piazza Politeama.",
+          price: "ca. 290–350 € / Nacht (DZ+EZ)",
+          url: "https://www.palazzonatoli.com/",
+          palette: ["#1e3a5f", "#3b6e8c", "#e0a96d"],
+          motif: "palazzo"
+        },
+        {
+          type: "hotel",
+          name: "Quintocanto Hotel & Spa",
+          tag: "4★ Hotel & Spa",
+          desc: "Direkt an den historischen Quattro Canti gelegen – mit kleinem Spa-Bereich, perfekt zum Aufwärmen nach Winterspaziergängen.",
+          price: "ca. 270–320 € / Nacht (DZ+EZ)",
+          url: "https://www.quintocantohotel.com/",
+          palette: ["#2c3e50", "#1b7f79", "#f2c14e"],
+          motif: "spa"
+        },
+        {
+          type: "airbnb",
+          name: "Airbnb: Altbau-Palazzo im Viertel Kalsa / Politeama",
+          tag: "Airbnb • 2 Schlafzimmer",
+          desc: "Großzügiges sizilianisches Apartment mit 2 getrennten Schlafzimmern, hohen Decken, Balkon und voll ausgestatteter Küche.",
+          price: "ca. 140–180 € / Nacht (gesamt)",
+          url: "https://www.airbnb.de/s/Palermo--Italien/homes?adults=3&min_bedrooms=2",
+          palette: ["#7c3f2c", "#c86d51", "#f4d58d"],
+          motif: "apartment"
+        }
+      ]
+    },
+    {
+      city: "Cefalù (2 Nächte: 01.01. – 03.01.)",
+      items: [
+        {
+          type: "hotel",
+          name: "Hotel Alberi del Paradiso",
+          tag: "4★ Panorama-Hotel",
+          desc: "Ruhig im Grünen oberhalb von Cefalù gelegenes Boutique-Hotel mit herrlichem Blick über die Bucht und sehr guter Küche.",
+          price: "ca. 240–290 € / Nacht (DZ+EZ)",
+          url: "https://alberidelparadiso.it/",
+          palette: ["#164e63", "#0e7490", "#fde047"],
+          motif: "coast"
+        },
+        {
+          type: "hotel",
+          name: "Hotel La Plumeria",
+          tag: "4★ Altstadt-Boutique",
+          desc: "Kleines, elegantes Boutique-Hotel mitten im historischen Zentrum, nur wenige Schritte vom normannischen Dom und Strand entfernt.",
+          price: "ca. 220–260 € / Nacht (DZ+EZ)",
+          url: "https://www.laplumeriahotel.it/en/",
+          palette: ["#3f4e4f", "#a27b5c", "#dcd7c9"],
+          motif: "palazzo"
+        },
+        {
+          type: "airbnb",
+          name: "Airbnb: Meerblick-Apartment an der Altstadtmauer",
+          tag: "Airbnb • 2 Schlafzimmer",
+          desc: "Moderne Ferienwohnung mit 2 Schlafzimmern und kleiner Terrasse direkt über den Wellen der Nordküste.",
+          price: "ca. 120–160 € / Nacht (gesamt)",
+          url: "https://www.airbnb.de/s/Cefal%C3%B9--Italien/homes?adults=3&min_bedrooms=2",
+          palette: ["#0369a1", "#38bdf8", "#fef08a"],
+          motif: "coast"
+        }
+      ]
+    },
+    {
+      city: "Lipari / Liparische Inseln (3 Nächte: 03.01. – 06.01.)",
+      items: [
+        {
+          type: "hotel",
+          name: "Hotel Mea (Aeolian Charme)",
+          tag: "4★ Boutique-Hotel",
+          desc: "Schickes Haus im äolischen Stil mit Blick auf die Burg von Lipari und das Meer – ideale Basis für Ausflüge nach Stromboli.",
+          price: "ca. 190–240 € / Nacht (DZ+EZ)",
+          url: "https://www.aeoliancharme.com/en/hotel-mea-lipari/index",
+          palette: ["#0f766e", "#14b8a6", "#f8fafc"],
+          motif: "island"
+        },
+        {
+          type: "hotel",
+          name: "Hotel Oriente Lipari",
+          tag: "3★ Superior • Ganzjährig",
+          desc: "Familiäres, sehr gepflegtes Boutique-Hotel im Herzen von Lipari-Stadt mit mediterranem Garten und kurzen Wegen zum Hafen.",
+          price: "ca. 160–200 € / Nacht (DZ+EZ)",
+          url: "https://www.hotelorientelipari.com/",
+          palette: ["#1d4ed8", "#60a5fa", "#fde68a"],
+          motif: "island"
+        },
+        {
+          type: "airbnb",
+          name: "Airbnb: Äolisches Inselhaus mit Panoramaterrasse",
+          tag: "Airbnb • 2 Schlafzimmer",
+          desc: "Typisch weißes Insel-Apartment mit 2 Schlafzimmern und Dachterrasse mit Blick auf die Nachbarinseln Panarea & Stromboli.",
+          price: "ca. 110–150 € / Nacht (gesamt)",
+          url: "https://www.airbnb.de/s/Lipari--Italien/homes?adults=3&min_bedrooms=2",
+          palette: ["#115e59", "#2dd4bf", "#fed7aa"],
+          motif: "island"
+        }
+      ]
+    },
+    {
+      city: "Taormina (3 Nächte: 06.01. – 09.01. • Winter-geöffnet)",
+      items: [
+        {
+          type: "hotel",
+          name: "NH Collection Taormina",
+          tag: "5★ Design-Hotel • Ganzjährig",
+          desc: "Ganzjährig geöffnetes Top-Hotel im Zentrum von Taormina mit beheiztem Spa, modernen Zimmern und Blick über Küste & Ätna.",
+          price: "ca. 340–410 € / Nacht (DZ+EZ)",
+          url: "https://www.nh-hotels.com/de/hotel/nh-collection-taormina",
+          palette: ["#312e81", "#4f46e5", "#f59e0b"],
+          motif: "etna"
+        },
+        {
+          type: "hotel",
+          name: "Villa Belvedere – Deluxe Studio Apartments",
+          tag: "4★ Winter-Residenz",
+          desc: "Während das Haupthaus Winterpause macht, sind die eleganten Deluxe-Apartments der Villa Belvedere nahe der Villa Comunale buchbar.",
+          price: "ca. 240–290 € / Nacht (2 Einheiten)",
+          url: "https://mobile.villabelvedere.it/en/deluxe-studio-apartment.html",
+          palette: ["#065f46", "#10b981", "#fef3c7"],
+          motif: "etna"
+        },
+        {
+          type: "airbnb",
+          name: "Airbnb: Design-Apartment am Corso Umberto",
+          tag: "Airbnb • 2 Schlafzimmer",
+          desc: "Stilvoll renovierte Wohnung mit 2 Schlafzimmern und Heizung direkt an der Fußgängerzone von Taormina.",
+          price: "ca. 150–195 € / Nacht (gesamt)",
+          url: "https://www.airbnb.de/s/Taormina--Italien/homes?adults=3&min_bedrooms=2",
+          palette: ["#7f1d1d", "#dc2626", "#fde68a"],
+          motif: "apartment"
+        }
+      ]
+    }
+  ];
+
+  function buildSvgIllustration(palette, motif) {
+    const [c1, c2, c3] = palette;
+    let shapes = `<circle cx="320" cy="36" r="24" fill="${c3}" opacity="0.85"/>`;
+    if (motif === "etna") {
+      shapes += `<polygon points="0,145 110,48 220,145" fill="#ffffff" opacity="0.22"/><polygon points="85,70 110,48 135,70" fill="#ffffff" opacity="0.75"/><path d="M0,125 Q180,105 400,130 L400,145 L0,145 Z" fill="#000" opacity="0.25"/>`;
+    } else if (motif === "island") {
+      shapes += `<polygon points="40,145 120,65 200,145" fill="#000" opacity="0.22"/><polygon points="180,145 270,52 360,145" fill="#000" opacity="0.3"/><path d="M0,122 Q100,115 200,122 T400,122 L400,145 L0,145 Z" fill="#ffffff" opacity="0.22"/>`;
+    } else if (motif === "coast") {
+      shapes += `<path d="M0,112 Q120,98 240,115 T400,110 L400,145 L0,145 Z" fill="#ffffff" opacity="0.24"/><rect x="35" y="75" width="75" height="45" rx="4" fill="#fff" opacity="0.2"/>`;
+    } else {
+      shapes += `<rect x="30" y="62" width="90" height="83" rx="6" fill="#fff" opacity="0.16"/><rect x="140" y="48" width="110" height="97" rx="6" fill="#fff" opacity="0.22"/><circle cx="75" cy="90" r="10" fill="${c3}" opacity="0.7"/>`;
+    }
+    return `<svg viewBox="0 0 400 145" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="g-${c1.slice(1)}-${c2.slice(1)}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
+      </linearGradient></defs>
+      <rect width="400" height="145" fill="url(#g-${c1.slice(1)}-${c2.slice(1)})"/>
+      ${shapes}
+    </svg>`;
+  }
+
+  function renderStays(filter) {
+    const container = document.getElementById("stays-container");
+    container.innerHTML = "";
+    stayGroups.forEach(group => {
+      const filtered = group.items.filter(i => filter === "all" || i.type === filter);
+      if (!filtered.length) return;
+      const h3 = document.createElement("h3");
+      h3.className = "stay-group-title";
+      h3.textContent = group.city;
+      container.appendChild(h3);
+
+      const grid = document.createElement("div");
+      grid.className = "grid-3";
+      filtered.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "stay-card";
+        card.innerHTML = `
+          <div class="stay-visual">
+            ${buildSvgIllustration(item.palette, item.motif)}
+            <span class="stay-tag">${item.tag}</span>
+            <span class="visual-label">${item.name}</span>
+          </div>
+          <div class="stay-body">
+            <div>
+              <h4>${item.name}</h4>
+              <p>${item.desc}</p>
+            </div>
+            <div class="stay-footer">
+              <span class="price-pill">${item.price}</span>
+              <a class="btn-link" href="${item.url}" target="_blank" rel="noopener">Zur Seite →</a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+    });
+  }
+
+  function filterStays(type, btn) {
+    document.querySelectorAll(".filter-bar .filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderStays(type);
+  }
+  renderStays("all");
+
+  // 3. Kostenrechner
+  const costData = {
+    hotel: [
+      ["Flüge ab/bis München", "Gabelflug MUC → PMO (29.12.) / CTA → MUC (09.01.) inkl. Gepäck", "ca. 750 € – 980 €"],
+      ["Mietwagen & Parken", "Kompakt-SUV/Kombi inkl. Vollkasko + Hafenparkhaus Milazzo (3 Tage)", "ca. 550 € – 700 €"],
+      ["Fähren & Stromboli-Tour", "Liberty Lines Schnellboote (Milazzo ↔ Lipari) + Abendtour Stromboli", "ca. 240 € – 300 €"],
+      ["Unterkünfte (11 Nächte)", "Boutique-Hotels (1 Doppelzimmer + 1 Einzelzimmer inkl. Frühstück)", "ca. 2.850 € – 3.450 €"],
+      ["Verpflegung & Silvester", "Streetfood, Trattorien, Silvester-Cenone in Palermo & Weinprobe", "ca. 1.400 € – 1.650 €"],
+      ["Eintritte & Ausflüge", "Ätna-Seilbahn, Antikes Theater Taormina, Normannenpalast, Kurtaxe", "ca. 350 € – 450 €"],
+      ["GESAMTKOSTEN (3 Pers.)", "Komplettpreis für 11 Nächte (ca. 2.045 – 2.510 € p. P.)", "ca. 6.140 € – 7.530 €"]
+    ],
+    airbnb: [
+      ["Flüge ab/bis München", "Gabelflug MUC → PMO (29.12.) / CTA → MUC (09.01.) inkl. Gepäck", "ca. 750 € – 980 €"],
+      ["Mietwagen & Parken", "Kompakt-SUV/Kombi inkl. Vollkasko + Hafenparkhaus Milazzo (3 Tage)", "ca. 550 € – 700 €"],
+      ["Fähren & Stromboli-Tour", "Liberty Lines Schnellboote (Milazzo ↔ Lipari) + Abendtour Stromboli", "ca. 240 € – 300 €"],
+      ["Unterkünfte (11 Nächte)", "4 schicke Apartments mit je 2 getrennten Schlafzimmern", "ca. 1.480 € – 1.920 €"],
+      ["Verpflegung & Silvester", "Frühstück, Trattorien, Silvester-Cenone in Palermo & Weinprobe", "ca. 1.480 € – 1.750 €"],
+      ["Eintritte & Ausflüge", "Ätna-Seilbahn, Antikes Theater Taormina, Normannenpalast, Kurtaxe", "ca. 350 € – 450 €"],
+      ["GESAMTKOSTEN (3 Pers.)", "Komplettpreis für 11 Nächte (ca. 1.615 – 2.030 € p. P.)", "ca. 4.850 € – 6.100 €"]
+    ]
+  };
+
+  function setCostMode(mode) {
+    document.getElementById("btn-cost-hotel").classList.toggle("active", mode === "hotel");
+    document.getElementById("btn-cost-airbnb").classList.toggle("active", mode === "airbnb");
+    const tbody = document.getElementById("cost-tbody");
+    tbody.innerHTML = costData[mode].map((row, idx) => `
+      <tr class="${idx === costData[mode].length - 1 ? 'total-row' : ''}">
+        <td>${row[0]}</td>
+        <td>${row[1]}</td>
+        <td>${row[2]}</td>
+      </tr>
+    `).join("");
+  }
+  setCostMode("hotel");
+
+  // 4. Packliste
+  const packItems = [
+    "Wind- & wasserdichte Übergangsjacke",
+    "Warme Fleece-/Strickjacke (Zwiebellook)",
+    "Mütze & Handschuhe für den Ätna",
+    "Rutschfeste Sneaker / leichte Wanderschuhe",
+    "Tagesrucksack & Powerbank",
+    "Reiseadapter Typ L (Italien 3-polig)",
+    "Personalausweis & Führerschein",
+    "Echte Kreditkarte (auf Hauptfahrer-Namen)",
+    "Auslandskrankenversicherung",
+    "Reservierungsbestätigung Silvester-Dinner"
+  ];
+  const checkContainer = document.getElementById("checklist");
+  packItems.forEach(text => {
+    const label = document.createElement("label");
+    label.className = "check-item";
+    label.innerHTML = `<input type="checkbox"><span>${text}</span>`;
+    label.querySelector("input").addEventListener("change", e => {
+      label.classList.toggle("checked", e.target.checked);
+    });
+    checkContainer.appendChild(label);
+  });
+</script>
+</body>
+</html>
